@@ -15,7 +15,7 @@ or 'SAMPLE_DATASET_20240515.txt' and the script will upload that file to the dat
 
 Cerner Wiki for HIDUU command usage: https://wiki.cerner.com/pages/releaseview.action?pageId=1391627506
 
-Author: Eddie Davison
+Author: Eddie Davison | NHS NCL ICB
 Last Modified: 17-May-2024
 """
 

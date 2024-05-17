@@ -1,20 +1,22 @@
-AUTO_HIDUU
-Overview
+# AUTO_HIDUU
 
-AUTO_HIDUU is a Python script that automates the process of uploading files to the HealtheIntent platform using the hi-data-upload-utility (HIDUU). The script scans a specified input directory for .csv and .txt files, matches them against a predefined set of dataset names, and uploads each matching file to the correct dataset on the HealtheIntent system.
-Features
+## Overview
+
+**AUTO_HIDUU** is a Python script that automates the process of uploading files to the HealtheIntent platform using the hi-data-upload-utility (HIDUU). The script scans a specified input directory for .csv and .txt files, matches them against a predefined set of dataset names, and uploads each matching file to the correct dataset on the HealtheIntent system.
+
+## Features
 
     Scans a directory for .csv and .txt files.
     Matches files to dataset IDs using a predefined dictionary.
     Automatically uploads files to HealtheIntent using the HIDUU command-line tool.
     Provides detailed logging and summary of uploaded and failed files.
 
-Prerequisites
+## Prerequisites
 
     Python 3.x
     HIDUU installed and accessible (refer to the Cerner Wiki for HIDUU command usage)
 
-Setup
+## Setup
 
     Clone the repository:
 
@@ -31,44 +33,51 @@ Setup
 
     Ensure the HIDUU command-line tool is installed and accessible.
 
-Usage
+## Usage
 
     Navigate to the directory containing the script:
 
     bash
 
+```bash
 cd path/to/AUTO_HIDUU
+```
 
 Run the script:
 
-bash
+```bash
+python main.py
+```
 
-    python main.py
 
-Script Details
-Variables
 
-    Directories
+## Script Details
+
+### Variables
+
+    **Directories**
         input_folder_path: Path to the folder containing input files.
         hiduu_directory: Path to the HIDUU utility.
 
-    Upload Information
+    **Upload Information**
         upload_reason: Reason for uploading files.
         sv: Specification version.
         fid: File ID within the dataset specification.
 
-    Authentication Credentials
+    **Authentication Credentials**
         said: System account ID.
         sas: System account secret.
         sid: Source ID.
 
-    Dataset Files
+    **Dataset Files**
         dataset_files: Dictionary mapping the first part of the filename to their corresponding dataset IDs.
 
-File Matching
+### File Matching
 
 The script expects filenames in the format: {dataset_name}_{date}.csv or {dataset_name}_{date}.txt. For example, SAMPLE_DATASET_20240515.csv will match the key SAMPLE_DATASET in the dataset_files dictionary.
-Upload Process
+
+
+**Upload Process**
 
     The script scans the input_folder_path for files with .csv or .txt extensions.
     Each file is checked against the dataset_files dictionary to determine the corresponding dataset ID.
@@ -79,12 +88,15 @@ Example
 
 An example dictionary for dataset_files:
 
-python
-
+```python
 dataset_files = {
     'SAMPLE_DATASET': 'TARGET_DATASET_ID',
     'SOME_OTHER_DATASET': 'ANOTHER_TARGET_DATASET_ID',
 }
+```
 
-Author
+
+
+### Author
+
 Eddie Davison | NHS NCL ICB
