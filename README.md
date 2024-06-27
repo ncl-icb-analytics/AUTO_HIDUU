@@ -23,7 +23,7 @@
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/AUTO_HIDUU.git
+git clone https://github.com/EddieDavison92/AUTO_HIDUU.git
 ```
 
 2. Update the script with your specific paths and credentials:

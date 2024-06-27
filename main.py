@@ -25,8 +25,8 @@ import re
 
 def run_custom_commands():
     # Define the input folder containing the input files and the directory for the HIDUU
-    input_folder_path = r'C:\Users\Username\Directory\Folder'
-    hiduu_directory = r'C:\Users\Username\Directory\hi-data-upload-utility-1.11\bin'
+    input_folder_path = r'C:\Users\Username\Some_Directory\Folder_With_Files_To_Upload'
+    hiduu_directory = r'C:\Users\Username\Directory_Where_HIDUU_Is_Stored\hi-data-upload-utility-1.11\bin'
 
     # Variables
     upload_reason = 'Uploaded files dated:' # Reason for uploading the files
