@@ -1,73 +1,58 @@
 import pandas as pd
-import numpy as np
 import datetime
-import uuid
 
-def validate_value(value, data_type, constraints):
-    """Validates a single value matches its expected data type and constraints"""
-    try:
-        # Handle null values first
-        if pd.isna(value):
-            return (True, "Valid null value") if constraints.get('nullable', False) \
-                   else (False, "Non-nullable field contains null value")
-            
-        # Validate based on data type
-        validators = {
-            'date': _validate_date,
-            'int': _validate_integer,
-            'float': _validate_float,
-            'uuid': _validate_uuid,
-            'varchar': _validate_varchar
-        }
-        
-        validator = validators.get(data_type)
-        if not validator:
-            return False, f"Unknown data type: {data_type}"
-            
-        return validator(value, constraints)
-        
-    except Exception as e:
-        return False, f"Validation error: {str(e)}"
+def validate_value(value, data_type, rules):
+    """Check if a single value matches its expected data type and rules"""
+    
+    # First check if the value is empty
+    if pd.isna(value):
+        if rules.get('nullable', False):
+            return True, "Valid empty value"
+        else:
+            return False, "This field cannot be empty"
+    
+    # Check the value based on its type
+    if data_type == 'date':
+        return _check_date(value, rules)
+    elif data_type == 'varchar':
+        return _check_text(value, rules)
+    elif data_type == 'int':
+        return _check_integer(value)
+    elif data_type == 'float':
+        return _check_decimal(value)
+    else:
+        return False, f"Unknown data type: {data_type}"
 
-def _validate_date(value, constraints):
-    date_format = constraints.get('format', '%Y-%m-%d')
+def _check_date(value, rules):
+    """Check if value is a valid date"""
+    date_format = rules.get('format', '%Y-%m-%d')
     try:
         if isinstance(value, str):
             datetime.datetime.strptime(value, date_format)
-        else:
-            pd.to_datetime(value).strftime(date_format)
         return True, "Valid"
     except:
         return False, f"Invalid date format. Expected {date_format}"
 
-def _validate_integer(value, _):
-    try:
-        int_val = pd.to_numeric(value, downcast='integer')
-        if not isinstance(int_val, (int, np.int64)):
-            return False, "Value must be an integer"
-        return True, "Valid"
-    except:
-        return False, "Invalid integer value"
-
-def _validate_float(value, _):
-    try:
-        float_val = pd.to_numeric(value, downcast='float')
-        if not isinstance(float_val, (float, np.float64)):
-            return False, "Value must be a float"
-        return True, "Valid"
-    except:
-        return False, "Invalid float value"
-
-def _validate_uuid(value, _):
-    try:
-        uuid.UUID(str(value))
-        return True, "Valid"
-    except:
-        return False, "Invalid UUID format"
-
-def _validate_varchar(value, constraints):
+def _check_text(value, rules):
+    """Check if value is valid text"""
     if not isinstance(value, str):
-        return False, f"Value must be a string, got {type(value)}"
-    if 'length' in constraints and len(str(value)) > constraints['length']:
-        return False, f"String length {len(str(value))} exceeds maximum of {constraints['length']}"
-    return True, "Valid" 
+        return False, f"Value must be text, got {type(value)}"
+    if 'length' in rules and len(str(value)) > rules['length']:
+        return False, f"Text is too long ({len(str(value))} chars, max is {rules['length']})"
+    return True, "Valid"
+
+def _check_integer(value):
+    """Check if value is a valid integer"""
+    try:
+        int(value)
+        return True, "Valid"
+    except:
+        return False, "Value must be a whole number"
+
+def _check_decimal(value):
+    """Check if value is a valid decimal number"""
+    try:
+        float(value)
+        return True, "Valid"
+    except:
+        return False, "Value must be a number" 

@@ -1,3 +1,5 @@
+# This file defines what our input files should look like
+
 dataset_files = {
     'sample_dataset': {
         'filename_pattern': r'SAMPLE_DATASET_\d{8}\.(csv|txt)',

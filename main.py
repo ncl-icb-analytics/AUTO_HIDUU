@@ -4,35 +4,36 @@ from config import dataset_files
 from src import FileUploader
 
 def main():
-    # Load environment variables
+    # Load our settings from the .env file
     load_dotenv()
 
-    # Get configuration from environment variables
-    input_path = os.getenv('INPUT_FOLDER_PATH')
-    hiduu_dir = os.getenv('HIDUU_DIRECTORY')
+    # Get paths from our environment settings
+    input_path = os.getenv('INPUT_FOLDER_PATH')    # Where to find the files
+    hiduu_dir = os.getenv('HIDUU_DIRECTORY')       # Where the upload tool is installed
     
-    # Authentication credentials
+    # Get login details from our environment settings
     auth_credentials = {
         'said': os.getenv('SAID'),
         'sas': os.getenv('SAS'),
         'sid': os.getenv('SID')
     }
     
-    # Upload configuration
+    # Settings for the upload process
     upload_config = {
         'reason': os.getenv('UPLOAD_REASON', 'Uploaded files dated:'),
         'spec_version': os.getenv('SPEC_VERSION', '1'),
         'file_id': os.getenv('FILE_ID', 'SINGLE_FILE')
     }
 
-    # Validate required environment variables
-    required_vars = [input_path, hiduu_dir] + list(auth_credentials.values())
-    if not all(required_vars):
+    # Make sure we have all required settings
+    if not all([input_path, hiduu_dir, auth_credentials['said'], 
+                auth_credentials['sas'], auth_credentials['sid']]):
         raise ValueError("Missing required environment variables. Please check your .env file.")
 
-    # Initialize uploader and process files
+    # Create uploader and start the process
     uploader = FileUploader(input_path, hiduu_dir, auth_credentials, upload_config)
     uploader.upload_files(dataset_files)
 
+# Only run if this file is run directly (not imported)
 if __name__ == '__main__':
     main()

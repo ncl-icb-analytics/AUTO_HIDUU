@@ -2,82 +2,88 @@ import os
 import pandas as pd
 from .value_validator import validate_value
 
-def validate_csv(file_path, dataset_config):
-    """Validates a CSV file against expected schema and constraints"""
-    # Basic file checks
+def validate_csv(file_path, config):
+    """Check if a CSV file is valid according to our rules"""
+    
+    # Check if file exists and we can read it
     if not os.path.exists(file_path):
         return False, f"File not found: {file_path}"
     if not os.access(file_path, os.R_OK):
-        return False, f"File not readable: {file_path}"
+        return False, f"Cannot read file: {file_path}"
             
-    # Read and validate CSV contents
+    # Try to read the CSV file
     try:
         df = pd.read_csv(file_path)
     except Exception as e:
         return False, f"Error reading CSV file: {str(e)}"
     
-    # Basic DataFrame validations
+    # Check if file has data
     if df.empty:
         return False, "File is empty"
-    if len(df) < dataset_config['min_rows']:
-        return False, f"File contains {len(df)} rows, minimum expected is {dataset_config['min_rows']}"
+    if len(df) < config['min_rows']:
+        return False, f"File has {len(df)} rows, but needs at least {config['min_rows']}"
             
-    # Column validation
-    column_validation = _validate_columns(df, dataset_config['schema'])
-    if not column_validation[0]:
-        return column_validation
+    # Check if all required columns exist
+    column_check = _check_columns(df, config['schema'])
+    if not column_check[0]:
+        return column_check
             
-    # Data validation
-    return _validate_data(df, dataset_config['schema'])
+    # Check if all data is valid
+    return _check_data(df, config['schema'])
 
-def _validate_columns(df, schema):
-    """Validates that all required columns are present"""
+def _check_columns(df, schema):
+    """Check if all required columns are present"""
     expected_columns = set(schema.keys())
     actual_columns = set(df.columns)
     
+    # Check for missing columns
     missing = expected_columns - actual_columns
     if missing:
-        return False, f"Missing required columns: {', '.join(missing)}"
-        
+        return False, f"Missing columns: {', '.join(missing)}"
+    
+    # Check for extra columns
     extra = actual_columns - expected_columns
     if extra:
         return False, f"Unexpected columns found: {', '.join(extra)}"
-        
+    
     return True, "Valid columns"
 
-def _validate_data(df, schema):
-    """Validates data in each column matches schema requirements"""
-    validation_errors = []
+def _check_data(df, schema):
+    """Check if all data matches the rules"""
+    errors = []
     
-    for column, rules in schema.items():
-        # Check for nulls
+    # Check each column
+    for column_name, rules in schema.items():
+        # Check for empty values
         if not rules.get('nullable', False):
-            null_count = df[column].isna().sum()
-            if null_count > 0:
-                validation_errors.append(
-                    f"Column '{column}' contains {null_count} null values but is not nullable"
+            empty_count = df[column_name].isna().sum()
+            if empty_count > 0:
+                errors.append(
+                    f"Column '{column_name}' has {empty_count} empty values but cannot be empty"
                 )
                 continue
         
-        # Validate values
-        invalid_rows = _find_invalid_rows(df[column], rules)
-        if invalid_rows:
-            validation_errors.append(
-                f"Column '{column}' validation errors:\n" + "\n".join(invalid_rows)
+        # Check each value in the column
+        bad_rows = _find_invalid_rows(df[column_name], rules)
+        if bad_rows:
+            errors.append(
+                f"Column '{column_name}' errors:\n" + "\n".join(bad_rows)
             )
     
-    return (False, "\n".join(validation_errors)) if validation_errors else (True, "Validation passed")
+    if errors:
+        return False, "\n".join(errors)
+    return True, "All data is valid"
 
 def _find_invalid_rows(column, rules, max_errors=5):
-    """Finds rows with invalid values in a column"""
-    invalid_rows = []
+    """Find rows with invalid values (shows up to 5 errors)"""
+    errors = []
     
-    for idx, value in column.items():
+    for row_num, value in column.items():
         is_valid, error = validate_value(value, rules['type'], rules)
         if not is_valid:
-            invalid_rows.append(f"Row {idx+1}: {error}")
-            if len(invalid_rows) >= max_errors:
-                invalid_rows.append("... and more errors")
+            errors.append(f"Row {row_num+1}: {error}")
+            if len(errors) >= max_errors:
+                errors.append("... and more errors")
                 break
                 
-    return invalid_rows 
+    return errors

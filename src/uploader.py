@@ -88,15 +88,15 @@ class FileUploader:
     def _upload_file(self, file, file_path, file_date, config):
         """Upload file using HIDUU utility"""
         cmd = (f'hi-data-upload-utility uploadDataSetFile '
-               f'-said {self.auth["said"]} -sas {self.auth["sas"]} -sid {self.auth["sid"]} '
-               f'-dsid {config["target_hei_dataset"]} -sv {self.upload_config["spec_version"]} '
-               f'-fid {self.upload_config["file_id"]} -rl {file_date} -f {file_path} '
-               f'-re "{self.upload_config["reason"]} {file_date}"')
+                f'-said {self.auth["said"]} -sas {self.auth["sas"]} -sid {self.auth["sid"]} '
+                f'-dsid {config["target_hei_dataset"]} -sv {self.upload_config["spec_version"]} '
+                f'-fid {self.upload_config["file_id"]} -rl {file_date} -f {file_path} '
+                f'-re "{self.upload_config["reason"]} {file_date}"')
         
         try:
             print(f"\nUploading {file}...")
             result = subprocess.run(cmd, cwd=self.hiduu_dir, shell=True, check=True, 
-                                 capture_output=True, text=True)
+            capture_output=True, text=True)
             self.uploaded_files.append((file, config["target_hei_dataset"]))
             print(f"Successfully uploaded {file}")
             print(f"Command output: {result.stdout}")
