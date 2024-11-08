@@ -11,7 +11,7 @@ def main():
     input_path = os.getenv('INPUT_FOLDER_PATH')    # Where to find the files
     hiduu_dir = os.getenv('HIDUU_DIRECTORY')       # Where the upload tool is installed
     
-    # Get login details from our environment settings
+    # Get authentication details from our environment settings
     auth_credentials = {
         'said': os.getenv('SAID'),
         'sas': os.getenv('SAS'),
