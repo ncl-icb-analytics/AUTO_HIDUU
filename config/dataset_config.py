@@ -21,7 +21,10 @@ dataset_files = {
         'schema': {
             'patient_id': {'type': 'varchar', 'length': 50, 'nullable': False},
             'visit_date': {'type': 'date', 'format': '%Y-%m-%d', 'nullable': False},
-            'diagnosis_code': {'type': 'varchar', 'length': 20, 'nullable': True}
+            'diagnosis_code': {'type': 'varchar', 'length': 20, 'nullable': True},
+            'age': {'type': 'int', 'nullable': False},
+            'temperature': {'type': 'float', 'nullable': True},
+            'is_active': {'type': 'boolean', 'nullable': False}
         },
         'target_hei_dataset': 'TARGET_DATASET_ID'
     },
