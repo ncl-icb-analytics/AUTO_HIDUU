@@ -68,10 +68,10 @@ dataset_files = {
     'dataset_name': {
         # Pattern to match filenames (must include 8-digit date)
         'filename_pattern': r'PATTERN_\d{8}\.(csv|txt)',
-      
+    
         # Minimum number of rows required
         'min_rows': 100,
-      
+    
         # Define the expected columns and their rules
         'schema': {
             'column_name': {
@@ -82,7 +82,7 @@ dataset_files = {
             }
             # ... more columns ...
         },
-      
+    
         # Target dataset ID in HealtheIntent
         'target_hei_dataset': 'TARGET_DATASET_ID'
     }

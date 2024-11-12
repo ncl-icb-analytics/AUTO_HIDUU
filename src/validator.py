@@ -1,3 +1,15 @@
+"""
+This module provides functionality for validating CSV files against predefined schemas.
+It checks files for:
+- Existence and readability
+- Minimum row count
+- Required columns
+- Data type validation (dates and varchar)
+- Column constraints (nullable status, text length)
+
+The validation rules are defined in config/dataset_config.py for each dataset type.
+"""
+
 import os
 import pandas as pd
 
@@ -68,4 +80,4 @@ def _check_text(values, max_length):
     """Checks if values are valid text"""
     if (values.str.len() > max_length).any():
         return [f"Contains text longer than {max_length} characters"]
-    return [] 
+    return []

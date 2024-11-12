@@ -1,3 +1,24 @@
+"""
+This is the main entry point for the file upload application.
+
+The application processes CSV/TXT files from an input directory and uploads them
+using the HIDUU utility. It:
+- Loads configuration from environment variables (.env file)
+- Validates files against predefined schemas (see config/dataset_config.py)
+- Only uploads files that pass validation
+- Provides a summary of successful and failed uploads
+
+Required environment variables:
+- INPUT_FOLDER_PATH: Directory containing files to upload
+- HIDUU_DIRECTORY: Installation directory of the HIDUU upload tool
+- SAID/SAS/SID: Authentication credentials for HIDUU
+
+Optional environment variables:
+- UPLOAD_REASON: Custom reason for the upload
+- SPEC_VERSION: Specification version
+- FILE_ID: File identifier
+"""
+
 import os
 from dotenv import load_dotenv
 from config import dataset_files

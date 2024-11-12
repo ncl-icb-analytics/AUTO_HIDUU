@@ -1,9 +1,22 @@
+"""
+This module handles the file upload process using the HIDUU utility.
+It processes CSV/TXT files from an input directory and:
+- Matches files against expected filename patterns
+- Extracts dates from filenames
+- Calls the validator module to check file contents (see validator.py for validation rules)
+- Only uploads files that pass all validation checks
+- Uses HIDUU command line tool for uploading valid files
+- Tracks and reports upload successes/failures
+
+Files that fail validation are skipped and reported in the final summary.
+"""
+
 import os
 import re
 import subprocess
 from .validator import validate_file
 
-def upload_files(input_path, hiduu_dir, auth_credentials, upload_config, dataset_files):
+def process_directory(input_path, hiduu_dir, auth_credentials, upload_config, dataset_files):
     """Upload all valid files from the input directory"""
     uploaded_files = []
     failed_files = []

@@ -1,4 +1,18 @@
-# This file defines what our input files should look like
+"""
+This file defines the expected format and validation rules for input files.
+
+To add a new dataset type:
+1. Add a new entry to the dataset_files dictionary with a unique key
+2. Configure the following required fields:
+   - filename_pattern: A regex pattern that matches valid filenames (must include \d{8} for the date)
+   - min_rows: Minimum number of rows required in the file
+   - schema: A dictionary defining the columns and their rules:
+     - type: Either 'varchar' or 'date'
+     - length: For varchar fields, the maximum allowed length
+     - format: For date fields, the expected date format (e.g. '%Y-%m-%d')
+     - nullable: Whether the column can contain empty values
+   - target_hei_dataset: The ID of the target dataset in HEI
+"""
 
 dataset_files = {
     'sample_dataset': {
