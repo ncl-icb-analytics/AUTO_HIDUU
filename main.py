@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from config import dataset_files
-from src import FileUploader
+from src import upload_files
 
 def main():
     # Load our settings from the .env file
@@ -30,10 +30,8 @@ def main():
                 auth_credentials['sas'], auth_credentials['sid']]):
         raise ValueError("Missing required environment variables. Please check your .env file.")
 
-    # Create uploader and start the process
-    uploader = FileUploader(input_path, hiduu_dir, auth_credentials, upload_config)
-    uploader.upload_files(dataset_files)
+    # Start the upload process
+    upload_files(input_path, hiduu_dir, auth_credentials, upload_config, dataset_files)
 
-# Only run if this file is run directly (not imported)
 if __name__ == '__main__':
     main()

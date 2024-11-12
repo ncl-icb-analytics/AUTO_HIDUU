@@ -8,10 +8,9 @@
 
 * Validates CSV/TXT files against defined schemas:
   * Column presence and naming
-  * Data type validation (date, int, float, varchar, uuid)
-  * Null value handling
-  * String length constraints
-  * Custom date format validation
+  * Date format validation
+  * Text length validation
+  * Required field (non-null) validation
 * Matches files to dataset IDs using configurable patterns
 * Automatically uploads valid files to HealtheIntent using HIDUU
 * Provides detailed validation feedback and upload summaries
@@ -19,6 +18,7 @@
 ## Prerequisites
 
 * Python 3.x
+* pandas library
 * HIDUU installed and accessible (refer to the [Cerner Wiki for HIDUU command usage](https://wiki.cerner.com/pages/releaseview.action?pageId=1391627506))
 
 ## Setup
@@ -66,17 +66,24 @@ FILE_ID=SINGLE_FILE
 ```python
 dataset_files = {
     'dataset_name': {
+        # Pattern to match filenames (must include 8-digit date)
         'filename_pattern': r'PATTERN_\d{8}\.(csv|txt)',
+      
+        # Minimum number of rows required
         'min_rows': 100,
+      
+        # Define the expected columns and their rules
         'schema': {
             'column_name': {
-                'type': 'varchar',  # date, int, float, uuid, varchar
-                'length': 50,       # for varchar
-                'nullable': False,
-                'format': '%Y-%m-%d'  # for dates
+                'type': 'varchar',      # or 'date'
+                'length': 50,           # maximum length for varchar
+                'nullable': False,      # whether empty values are allowed
+                'format': '%Y-%m-%d'    # format for dates
             }
             # ... more columns ...
         },
+      
+        # Target dataset ID in HealtheIntent
         'target_hei_dataset': 'TARGET_DATASET_ID'
     }
     # ... more datasets ...
@@ -93,44 +100,68 @@ python main.py
 ```
 
 The script will:
-1. Scan the input directory for CSV/TXT files
-2. Match each file against configured dataset patterns
-3. Validate file contents against the defined schema
+
+1. Find all CSV/TXT files in the input directory
+2. Check if each file matches a configured dataset pattern
+3. Validate the file contents
 4. Upload valid files to HealtheIntent
-5. Provide a summary of successful and failed uploads
+5. Show a summary of what happened
 
 ## File Naming Convention
 
-Files should be named following the pattern defined in your dataset configuration. For example:
-* `SAMPLE_DATASET_20240515.csv`
-* `OTHER_DATASET_20240515.txt`
+Files must match the patterns you define in your dataset configuration. The default patterns look for an 8-digit date (YYYYMMDD) and .csv/.txt files, but you can modify these to match your needs.
 
-The date portion (YYYYMMDD) is required and will be used in the upload process.
+Default configuration examples:
+
+```python
+# Looks for files like SAMPLE_DATASET_20240515.csv
+'filename_pattern': r'SAMPLE_DATASET_\d{8}\.(csv|txt)'
+
+# Looks for files like OTHER_DATASET_20240515.txt
+'filename_pattern': r'OTHER_DATASET_\d{8}\.(csv|txt)'
+```
+
+You can change these patterns to match your file naming conventions. For example:
+
+```python
+# For files like Daily_Extract_2024-05-15.csv
+'filename_pattern': r'Daily_Extract_\d{4}-\d{2}-\d{2}\.csv'
+
+# For files that start with a date: 20240515_Report.txt
+'filename_pattern': r'\d{8}_Report\.txt'
+
+# For files with different extensions
+'filename_pattern': r'DATA_\d{8}\.(csv|txt|dat)'
+
+# Or any other pattern that matches your files
+'filename_pattern': r'Your_Pattern_Here'
+```
+
+Note: The script uses Python's regular expressions for pattern matching. If you need help creating patterns for your specific filenames, please ask for assistance.
 
 ## Validation Rules
 
-* **File Level**
-  * File must exist and be readable
-  * File must not be empty
-  * Must meet minimum row count
-  * Must contain all required columns
+The script checks:
 
-* **Data Level**
-  * Values must match specified data types
-  * Null values only allowed in nullable columns
-  * Varchar fields must not exceed maximum length
-  * Dates must match specified format
-  * Numbers must be valid integers or floats as specified
+* File exists and can be read
+* File has minimum required rows
+* All required columns are present
+* Date values match specified format
+* Text values don't exceed maximum length
+* Required fields are not empty
 
-## Error Handling
+## Error Messages
 
-The script provides detailed feedback for:
-* Missing or unreadable files
-* Schema validation failures
-* Data type mismatches
+You'll see clear messages about:
+
+* Files that don't match expected patterns
+* Missing columns
+* Invalid dates
+* Text that's too long
+* Required fields that are empty
 * Upload failures
 
-A summary is provided at the end of execution showing successful and failed uploads.
+A summary at the end shows which files were uploaded successfully and which failed.
 
 ## Author
 
