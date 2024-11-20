@@ -4,10 +4,8 @@ It checks files for:
 - Existence and readability
 - Minimum row count
 - Required columns
-- Data type validation (dates and varchar)
-- Column constraints (nullable status, text length)
-
-The validation rules are defined in config/dataset_config.py for each dataset type.
+- Data type validation (maps to Vertica types)
+- Column constraints (nullable status, length, precision)
 """
 
 import os
@@ -17,7 +15,15 @@ import numpy as np
 def validate_file(file_path, dataset_config):
     """
     Validates if a CSV file matches our expected format.
-    Returns (True/False, "Success/Error message")
+    
+    Args:
+        file_path (str): Path to the CSV/TXT file to validate
+        dataset_config (dict): Configuration dictionary containing schema and validation rules
+        
+    Returns:
+        tuple: (is_valid, message) where:
+            - is_valid (bool): True if file passes all validations
+            - message (str): Success message or error description
     """
     # Basic file checks
     if not os.path.exists(file_path):
@@ -51,20 +57,36 @@ def validate_file(file_path, dataset_config):
     return True, "File is valid"
 
 def _check_column(column, rules, col_name):
-    """Checks if a column's data matches the rules"""
+    """
+    Checks if a column's data matches the validation rules.
+    
+    Args:
+        column (pd.Series): The column data to validate
+        rules (dict): Validation rules for this column
+        col_name (str): Name of the column (for error messages)
+        
+    Returns:
+        list: List of error messages, empty if validation passed
+    """
     errors = []
     
-    # Check for nulls
-    if not rules['nullable'] and column.isna().any():
-        errors.append(f"Column '{col_name}' contains empty values but shouldn't")
+    # Check for nulls if specified
+    if not rules.get('nullable', True) and column.isna().any():
+        errors.append("Contains empty values but shouldn't")
         
     # Check non-null values match expected type
     non_null_values = column[~column.isna()]
     if len(non_null_values) > 0:
-        if rules['type'] == 'date':
-            errors.extend(_check_dates(non_null_values, rules['format']))
-        elif rules['type'] == 'varchar':
-            errors.extend(_check_text(non_null_values, rules['length']))
+        if rules['type'] in ['date', 'timestamp']:
+            errors.extend(_check_datetime(non_null_values, rules.get('format'), rules['type']))
+        elif rules['type'] in ['varchar', 'char']:
+            errors.extend(_check_text(non_null_values, rules['length'], rules['type']))
+        elif rules['type'] == 'numeric':
+            errors.extend(_check_numeric_precise(
+                non_null_values, 
+                rules.get('precision'), 
+                rules.get('scale')
+            ))
         elif rules['type'] == 'int':
             errors.extend(_check_numeric(non_null_values, 'integer'))
         elif rules['type'] == 'float':
@@ -74,23 +96,100 @@ def _check_column(column, rules, col_name):
             
     return errors
 
-def _check_dates(values, date_format):
-    """Checks if values are valid dates"""
+def _check_datetime(values, date_format=None, dtype='date'):
+    """
+    Validates dates or timestamps.
+    
+    Args:
+        values (pd.Series): Series of datetime values to validate
+        date_format (str, optional): Expected format (e.g. '%Y-%m-%d' or '%Y-%m-%d %H:%M:%S')
+        dtype (str): Either 'date' or 'timestamp'
+        
+    Returns:
+        list: List of error messages, empty if validation passed
+    """
     errors = []
     try:
-        pd.to_datetime(values, format=date_format)
-    except:
-        errors.append(f"Contains invalid dates (expected format: {date_format})")
+        if date_format:
+            # Validate specific format
+            pd.to_datetime(values, format=date_format)
+        else:
+            # Accept any valid date/timestamp
+            values = pd.to_datetime(values)
+            # For dates, check no time component
+            if dtype == 'date' and any(values.dt.time != pd.Timestamp('00:00:00').time()):
+                errors.append("Contains time values in date column")
+    except Exception as e:
+        format_msg = f" (expected format: {date_format})" if date_format else ""
+        errors.append(f"Contains invalid {dtype}s{format_msg}")
     return errors
 
-def _check_text(values, max_length):
-    """Checks if values are valid text"""
-    if (values.str.len() > max_length).any():
+def _check_text(values, max_length, dtype='varchar'):
+    """
+    Validates text values.
+    
+    Args:
+        values (pd.Series): Series of text values to validate
+        max_length (int): Maximum allowed length
+        dtype (str): Either 'varchar' or 'char'
+        
+    Returns:
+        list: List of error messages, empty if validation passed
+    """
+    lengths = values.str.len()
+    if lengths.gt(max_length).any():
         return [f"Contains text longer than {max_length} characters"]
+    if dtype == 'char' and lengths.ne(max_length).any():
+        return [f"Contains text not exactly {max_length} characters long"]
     return []
 
+def _check_numeric_precise(values, precision=None, scale=None):
+    """
+    Validates numeric values with precision and scale.
+    
+    Args:
+        values (pd.Series): Series of numeric values to validate
+        precision (int, optional): Maximum total digits
+        scale (int, optional): Maximum decimal places
+        
+    Returns:
+        list: List of error messages, empty if validation passed
+    """
+    errors = []
+    try:
+        numeric_values = pd.to_numeric(values)
+        
+        if precision is not None or scale is not None:
+            # Convert to strings to check digits
+            str_values = numeric_values.abs().astype(str)
+            
+            if precision is not None:
+                # Count total digits
+                total_digits = str_values.str.replace('.', '').str.len()
+                if total_digits.gt(precision).any():
+                    errors.append(f"Contains numbers with more than {precision} total digits")
+            
+            if scale is not None:
+                # Count decimal places
+                decimal_places = str_values.str.extract(r'\.(\d+)')[0].str.len().fillna(0)
+                if decimal_places.gt(scale).any():
+                    errors.append(f"Contains numbers with more than {scale} decimal places")
+                    
+    except Exception:
+        errors.append("Contains invalid numeric values")
+    return errors
+
 def _check_numeric(values, number_type):
-    """Checks if values are valid numbers"""
+    """
+    Validates that all values are valid numbers of the specified type.
+    
+    Args:
+        values (pd.Series): Series of numeric values to validate
+        number_type (str): Either 'integer' or 'float'
+        
+    Returns:
+        list: List of error messages, empty if validation passed
+    """
     errors = []
     try:
         if number_type == 'integer':
@@ -105,8 +204,16 @@ def _check_numeric(values, number_type):
     return errors
 
 def _check_boolean(values):
-    """Checks if values are valid booleans"""
-    # Accept common boolean representations
+    """
+    Validates that all values are valid boolean representations.
+    Accepts: True/False, 1/0, 'true'/'false' (case insensitive)
+    
+    Args:
+        values (pd.Series): Series of boolean values to validate
+        
+    Returns:
+        list: List of error messages, empty if validation passed
+    """
     valid_values = [True, False, 1, 0, '1', '0', 'true', 'false', 'True', 'False', 'TRUE', 'FALSE']
     invalid = ~values.isin(valid_values)
     if invalid.any():
