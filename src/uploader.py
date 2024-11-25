@@ -118,7 +118,7 @@ def _process_single_file(file, context, uploaded_files, failed_files):
 
     # Validate file
     print(f"\nValidating {file}...")
-    is_valid, message = validate_file(file_path, context.dataset_config)
+    is_valid, message, row_count = validate_file(file_path, context.dataset_config)
     
     if not is_valid:
         print(f"Validation failed: {message}")
@@ -127,10 +127,10 @@ def _process_single_file(file, context, uploaded_files, failed_files):
 
     # Upload and process successful files
     print("Validation passed, uploading...")
-    if _upload_file(file, file_path, date_match.group(), context, uploaded_files, failed_files):
+    if _upload_file(file, file_path, date_match.group(), context, uploaded_files, failed_files, row_count):
         _move_to_processed(file, file_path, context.processed_dir)
 
-def _upload_file(file, file_path, file_date, context, uploaded_files, failed_files):
+def _upload_file(file, file_path, file_date, context, uploaded_files, failed_files, row_count):
     """Upload file using HIDUU utility and return success status"""
     # Get configuration values with fallbacks to defaults
     reason = context.dataset_config.get('upload_reason', DEFAULT_CONFIG['upload_reason'])
@@ -152,7 +152,7 @@ def _upload_file(file, file_path, file_date, context, uploaded_files, failed_fil
         result = subprocess.run(cmd, cwd=context.hiduu_dir, shell=True, 
                              check=True, capture_output=True, text=True)
         uploaded_files.append((file, context.dataset_config["target_hei_dataset"]))
-        print(f"Successfully uploaded {file}")
+        print(f"Successfully uploaded {file} with {row_count:,} rows")
         print(f"Output: {result.stdout}")
         return True
     except subprocess.CalledProcessError as e:

@@ -21,29 +21,32 @@ def validate_file(file_path, dataset_config):
         dataset_config (dict): Configuration dictionary containing schema and validation rules
         
     Returns:
-        tuple: (is_valid, message) where:
+        tuple: (is_valid, message, row_count) where:
             - is_valid (bool): True if file passes all validations
             - message (str): Success message or error description
+            - row_count (int): Number of rows in the file
     """
     # Basic file checks
     if not os.path.exists(file_path):
-        return False, f"File not found: {file_path}"
+        return False, f"File not found: {file_path}", 0
         
     # Try to read the file
     try:
         df = pd.read_csv(file_path)
     except Exception as e:
-        return False, f"Could not read file: {str(e)}"
+        return False, f"Could not read file: {str(e)}", 0
+        
+    row_count = len(df)
         
     # Check if empty
-    if len(df) < dataset_config['min_rows']:
-        return False, f"File needs at least {dataset_config['min_rows']} rows, but has {len(df)}"
+    if row_count < dataset_config['min_rows']:
+        return False, f"File needs at least {dataset_config['min_rows']} rows, but has {row_count}", row_count
         
     # Check columns match schema
     schema = dataset_config['schema']
     missing_cols = set(schema.keys()) - set(df.columns)
     if missing_cols:
-        return False, f"Missing columns: {', '.join(missing_cols)}"
+        return False, f"Missing columns: {', '.join(missing_cols)}", row_count
         
     # Check each column's data
     errors = []
@@ -53,8 +56,8 @@ def validate_file(file_path, dataset_config):
             errors.extend(f"Column '{col_name}': {error}" for error in col_errors)
             
     if errors:
-        return False, "\n".join(errors)
-    return True, "File is valid"
+        return False, "\n".join(errors), row_count
+    return True, "File is valid", row_count
 
 def _check_column(column, rules, col_name):
     """
