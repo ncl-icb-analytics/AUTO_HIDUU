@@ -38,8 +38,11 @@ DEFAULT_CONFIG = {
 # - CharType(length)             # Fixed length
 #
 # Date/Time:
-# - DateType(format=None)        # e.g. "%Y-%m-%d", None=any valid date (defaults to None)
-# - TimestampType(format=None)   # e.g. "%Y-%m-%d %H:%M:%S", None=any valid timestamp (defaults to None)
+# - DateType(format=None)        # e.g. "%Y-%m-%d" matches 2024-11-25, None=any valid date
+# - TimestampType(format=None)   # e.g. "%Y-%m-%d %H:%M:%S" matches both:
+#                               #      - 2024-11-25 12:00:00 (timezone-naive)
+#                               #      - 2024-11-25 12:00:00+0000 (timezone-aware)
+#                               # None=any valid timestamp format
 #
 # Numbers:
 # - IntegerType(precision=None)  # precision=3 limits to 999, None=no limit (defaults to None) 
@@ -58,7 +61,7 @@ DEFAULT_CONFIG = {
 # Example 1: Dataset with date-based filename
 patient_visits = Dataset(
     name="Patient Visits",
-    filename_pattern="PATIENT_VISITS_????????.csv",
+    filename_pattern="PATIENT_VISITS_????????.csv", # Will match PATIENT_VISITS_20241125.csv
     min_rows=100,
     target_hei_dataset="VISITS_DATASET_ID",
     upload_reason="Patient visits from xxx source dated:", # Date will be appended
@@ -66,7 +69,7 @@ patient_visits = Dataset(
         Column("nhs_number", CharType(10), nullable=False),
         Column("hospital_code", CharType(3), nullable=False),
         Column("visit_date", DateType("%Y-%m-%d"), nullable=False),
-        Column("appointment_time", TimestampType("%Y-%m-%d %H:%M:%S")),
+        Column("appointment_time", TimestampType()),
         Column("consultant_name", VarcharType(50)),
         Column("diagnosis_code", VarcharType(20), nullable=False),
         Column("notes", VarcharType(1000)),
@@ -93,7 +96,7 @@ reference_data = Dataset(
         Column("region_code", CharType(2), nullable=False),
         Column("bed_count", IntegerType(precision=4)),  # 9999
         Column("is_teaching", BooleanType()),
-        Column("last_updated", TimestampType())
+        Column("last_updated", TimestampType())  # Any valid timestamp
     ]
 )
 

@@ -105,7 +105,7 @@ def _check_datetime(values, date_format=None, dtype='date'):
     
     Args:
         values (pd.Series): Series of datetime values to validate
-        date_format (str, optional): Expected format (e.g. '%Y-%m-%d' or '%Y-%m-%d %H:%M:%S')
+        date_format (str, optional): Expected format (e.g. '%Y-%m-%d' or '%Y-%m-%d %H:%M:%S%z')
         dtype (str): Either 'date' or 'timestamp'
         
     Returns:
@@ -122,6 +122,7 @@ def _check_datetime(values, date_format=None, dtype='date'):
             # For dates, check no time component
             if dtype == 'date' and any(values.dt.time != pd.Timestamp('00:00:00').time()):
                 errors.append("Contains time values in date column")
+            # For timestamps, we accept both with and without timezone
     except Exception as e:
         format_msg = f" (expected format: {date_format})" if date_format else ""
         errors.append(f"Contains invalid {dtype}s{format_msg}")
