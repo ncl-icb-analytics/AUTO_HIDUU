@@ -16,6 +16,7 @@ def validate_file(file_path, dataset_config):
     """
     Validates if a CSV file matches our expected format.
     Column order is not important - checks only that all required columns are present.
+    Files with extra columns will be rejected.
     
     Args:
         file_path (str): Path to the CSV/TXT file to validate
@@ -43,19 +44,20 @@ def validate_file(file_path, dataset_config):
     if row_count < dataset_config['min_rows']:
         return False, f"File needs at least {dataset_config['min_rows']} rows, but has {row_count}", row_count
         
-    # Check all required columns are present (order doesn't matter)
+    # Check columns match schema exactly (order doesn't matter)
     schema = dataset_config['schema']
     file_columns = set(df.columns)
     required_columns = set(schema.keys())
     
+    # Check for missing required columns
     missing_cols = required_columns - file_columns
     if missing_cols:
         return False, f"Missing required columns: {', '.join(sorted(missing_cols))}", row_count
         
-    # Extra columns in file are allowed
+    # Check for extra columns
     extra_cols = file_columns - required_columns
     if extra_cols:
-        print(f"Note: File contains extra columns that won't be validated: {', '.join(sorted(extra_cols))}")
+        return False, f"File contains unexpected columns: {', '.join(sorted(extra_cols))}", row_count
         
     # Check each configured column's data
     errors = []
