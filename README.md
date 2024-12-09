@@ -8,10 +8,11 @@
 
 * Validates CSV/TXT files against defined schemas:
   * Column presence and naming
-  * Date format validation
+  * Data type validation (maps to Vertica types)
   * Text length validation
   * Required field (non-null) validation
-* Matches files to dataset IDs using configurable patterns
+  * Numeric precision validation
+* Matches files using pattern matching with ? wildcards
 * Automatically uploads valid files to HealtheIntent using HIDUU
 * Provides detailed validation feedback and upload summaries
 
@@ -19,7 +20,7 @@
 
 * Python 3.x
 * pandas library
-* HIDUU installed and accessible (refer to the [Cerner Wiki for HIDUU command usage](https://wiki.cerner.com/pages/releaseview.action?pageId=1391627506))
+* HIDUU installed and accessible
 
 ## Setup
 
@@ -33,7 +34,7 @@ git clone https://github.com/EddieDavison92/AUTO_HIDUU.git
 
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
@@ -46,48 +47,78 @@ cp .env.example .env
 4. Edit the `.env` file with your specific configuration:
 
 ```ini
-# HealtheIntent Authentication Credentials
+# HealtheIntent Authentication
 SAID=your_system_account_id
 SAS=your_system_account_secret
 SID=your_source_id
 
-# Paths
-INPUT_FOLDER_PATH=C:\Path\To\Input\Files
-HIDUU_DIRECTORY=C:\Path\To\HIDUU\Installation
-
-# Upload Configuration
-UPLOAD_REASON=Uploaded files dated:
-SPEC_VERSION=1
-FILE_ID=SINGLE_FILE
+# File Paths
+INPUT_FOLDER_PATH=/path/to/input/files
+HIDUU_DIRECTORY=/path/to/hiduu/installation
 ```
 
-5. Update the dataset configuration in `config/dataset_config.py` to match your requirements:
+5. Define your datasets in `config/dataset_config.py`:
 
 ```python
-dataset_files = {
-    'dataset_name': {
-        # Pattern to match filenames (must include 8-digit date)
-        'filename_pattern': r'PATTERN_\d{8}\.(csv|txt)',
-    
-        # Minimum number of rows required
-        'min_rows': 100,
-    
-        # Define the expected columns and their rules
-        'schema': {
-            'column_name': {
-                'type': 'varchar',      # or 'date'
-                'length': 50,           # maximum length for varchar
-                'nullable': False,      # whether empty values are allowed
-                'format': '%Y-%m-%d'    # format for dates
-            }
-            # ... more columns ...
-        },
-    
-        # Target dataset ID in HealtheIntent
-        'target_hei_dataset': 'TARGET_DATASET_ID'
-    }
-    # ... more datasets ...
-}
+from .schema_types import (
+    Dataset, Column,
+    VarcharType, CharType, DateType, TimestampType,
+    IntegerType, FloatType, NumericType, BooleanType
+)
+
+my_dataset = Dataset(
+    name="My Dataset",
+    filename_pattern="MY_DATASET_????????.csv",  # ? matches any character
+    min_rows=100,
+    target_hei_dataset="TARGET_ID",
+    columns=[
+        Column("id", CharType(10), nullable=False),
+        Column("name", VarcharType(50)),
+        Column("date", DateType("%Y-%m-%d")),
+        Column("timestamp", TimestampType()),  # Accepts any valid timestamp
+        Column("count", IntegerType(precision=3)),  # Up to 999
+        Column("amount", NumericType(precision=5, scale=2)),  # Up to 999.99
+        Column("active", BooleanType(), nullable=False),
+    ]
+)
+```
+
+## Available Column Types
+
+* Text:
+
+  * `VarcharType(max_length)` - Variable length text
+  * `CharType(length)` - Fixed length text
+* Date/Time:
+
+  * `DateType(format=None)` - Date values (e.g. "%Y-%m-%d")
+  * `TimestampType(format=None)` - Timestamp values, with or without timezone
+* Numbers:
+
+  * `IntegerType(precision=None)` - Whole numbers
+  * `FloatType(precision=None)` - Decimal numbers
+  * `NumericType(precision=None, scale=None)` - Exact decimal numbers
+* Boolean:
+
+  * `BooleanType()` - True/False values (accepts 1/0)
+
+All types default to nullable=True. Add nullable=False to make a column required.
+
+## File Pattern Matching
+
+The filename_pattern in Dataset configuration supports:
+
+* Question mark (?) to match any single character
+* Exact filenames for fixed files
+
+Examples:
+
+```python
+# Match files with any 8 characters before .csv
+filename_pattern="DATA_????????.csv"  # DATA_20240315.csv, DATA_ABCD1234.csv
+
+# Match exact filename
+filename_pattern="REFERENCE.csv"  # Only REFERENCE.csv
 ```
 
 ## Usage
@@ -102,66 +133,11 @@ python main.py
 The script will:
 
 1. Find all CSV/TXT files in the input directory
-2. Check if each file matches a configured dataset pattern
-3. Validate the file contents
+2. Match files against dataset patterns
+3. Validate file contents against schema
 4. Upload valid files to HealtheIntent
-5. Show a summary of what happened
-
-## File Naming Convention
-
-Files must match the patterns you define in your dataset configuration. The default patterns look for an 8-digit date (YYYYMMDD) and .csv/.txt files, but you can modify these to match your needs.
-
-Default configuration examples:
-
-```python
-# Looks for files like SAMPLE_DATASET_20240515.csv
-'filename_pattern': r'SAMPLE_DATASET_\d{8}\.(csv|txt)'
-
-# Looks for files like OTHER_DATASET_20240515.txt
-'filename_pattern': r'OTHER_DATASET_\d{8}\.(csv|txt)'
-```
-
-You can change these patterns to match your file naming conventions. For example:
-
-```python
-# For files like Daily_Extract_2024-05-15.csv
-'filename_pattern': r'Daily_Extract_\d{4}-\d{2}-\d{2}\.csv'
-
-# For files that start with a date: 20240515_Report.txt
-'filename_pattern': r'\d{8}_Report\.txt'
-
-# For files with different extensions
-'filename_pattern': r'DATA_\d{8}\.(csv|txt|dat)'
-
-# Or any other pattern that matches your files
-'filename_pattern': r'Your_Pattern_Here'
-```
-
-Note: The script uses Python's regular expressions for pattern matching. If you need help creating patterns for your specific filenames, please ask for assistance.
-
-## Validation Rules
-
-The script checks:
-
-* File exists and can be read
-* File has minimum required rows
-* All required columns are present
-* Date values match specified format
-* Text values don't exceed maximum length
-* Required fields are not empty
-
-## Error Messages
-
-You'll see clear messages about:
-
-* Files that don't match expected patterns
-* Missing columns
-* Invalid dates
-* Text that's too long
-* Required fields that are empty
-* Upload failures
-
-A summary at the end shows which files were uploaded successfully and which failed.
+5. Move successful uploads to a processed directory
+6. Show a summary of results
 
 ## Author
 
