@@ -58,7 +58,7 @@ DEFAULT_CONFIG = {
 # Add nullable=False to make column required
 # ========================================
 
-# Example 1: Dataset with date-based filename
+# Example 1: Dataset with date-based filename (using default nlhcr tenant)
 patient_visits = Dataset(
     name="Patient Visits",
     filename_pattern="PATIENT_VISITS_????????.csv", # Will match PATIENT_VISITS_20241125.csv
@@ -83,12 +83,13 @@ patient_visits = Dataset(
     ]
 )
 
-# Example 2: Fixed filename dataset
+# Example 2: Fixed filename dataset (using nlhcr-1 tenant)
 reference_data = Dataset(
     name="Reference Data",
     filename_pattern="HOSPITAL_REFERENCE.csv",
     min_rows=1,
     target_hei_dataset="REFERENCE_DATASET_ID",
+    tenant="nlhcr-1",  # Explicitly set to use nlhcr-1 tenant
     columns=[
         Column("hospital_code", CharType(3), nullable=False),
         Column("hospital_name", VarcharType(100), nullable=False),
