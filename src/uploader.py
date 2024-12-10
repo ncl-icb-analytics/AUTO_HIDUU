@@ -109,12 +109,13 @@ def _process_single_file(file, context, uploaded_files, failed_files):
     """Process and upload a single file"""
     file_path = os.path.join(context.input_path, file)
     
-    # Extract date from filename
+    # Always use today's date unless we find a date in the filename
+    file_date = datetime.now().strftime('%Y%m%d')
+    
+    # Try to extract date from filename if present
     date_match = re.search(r'\d{8}', file)
-    if not date_match:
-        print(f"\nSkipping {file} - can't find date in filename")
-        failed_files.append((file, "No date in filename"))
-        return
+    if date_match:
+        file_date = date_match.group()
 
     # Validate file
     print(f"\nValidating {file}...")
@@ -127,7 +128,7 @@ def _process_single_file(file, context, uploaded_files, failed_files):
 
     # Upload and process successful files
     print("Validation passed, uploading...")
-    if _upload_file(file, file_path, date_match.group(), context, uploaded_files, failed_files, row_count):
+    if _upload_file(file, file_path, file_date, context, uploaded_files, failed_files, row_count):
         _move_to_processed(file, file_path, context.processed_dir)
 
 def _upload_file(file, file_path, file_date, context, uploaded_files, failed_files, row_count):
