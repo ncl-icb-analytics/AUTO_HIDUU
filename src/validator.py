@@ -142,17 +142,20 @@ def _check_datetime(values, date_format=None, dtype='date'):
 def _check_text(values, max_length, dtype='varchar'):
     """
     Validates text values.
+    All values are treated as strings regardless of their original type.
     
     Args:
-        values (pd.Series): Series of text values to validate
+        values (pd.Series): Series of values to validate
         max_length (int): Maximum allowed length
         dtype (str): Either 'varchar' or 'char'
         
     Returns:
         list: List of error messages, empty if validation passed
     """
-    values = values.astype(str)
-    lengths = values.str.len()
+    # Convert all values to strings first
+    str_values = values.fillna('').astype(str)
+    lengths = str_values.str.len()
+    
     if lengths.gt(max_length).any():
         return [f"Contains text longer than {max_length} characters"]
     if dtype == 'char' and lengths.ne(max_length).any():
