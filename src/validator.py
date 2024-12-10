@@ -151,6 +151,7 @@ def _check_text(values, max_length, dtype='varchar'):
     Returns:
         list: List of error messages, empty if validation passed
     """
+    values = values.astype(str)
     lengths = values.str.len()
     if lengths.gt(max_length).any():
         return [f"Contains text longer than {max_length} characters"]
