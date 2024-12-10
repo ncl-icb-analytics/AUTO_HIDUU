@@ -162,10 +162,20 @@ def _upload_file(file, file_path, file_date, context, uploaded_files, failed_fil
     try:
         result = subprocess.run(cmd, cwd=context.hiduu_dir, shell=True, 
                              check=True, capture_output=True, text=True)
+        
+        # Check if HIDUU output indicates a failure (case insensitive)
+        output_upper = result.stdout.upper()
+        if "ERROR" in output_upper or "FAILED" in output_upper:
+            failed_files.append((file, f"Upload failed: {result.stdout}"))
+            print(f"Error uploading {file}")
+            print(f"Error details: {result.stdout}")
+            return False
+            
         uploaded_files.append((file, context.dataset_config["target_hei_dataset"]))
         print(f"Successfully uploaded {file} with {row_count:,} rows")
         print(f"Output: {result.stdout}")
         return True
+        
     except subprocess.CalledProcessError as e:
         failed_files.append((file, f"Upload failed: {e.stderr}"))
         print(f"Error uploading {file}")

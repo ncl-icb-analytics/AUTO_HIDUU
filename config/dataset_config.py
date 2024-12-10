@@ -83,21 +83,19 @@ patient_visits = Dataset(
     ]
 )
 
-# Example 2: Fixed filename dataset (using nlhcr-1 tenant)
-reference_data = Dataset(
-    name="Reference Data",
-    filename_pattern="HOSPITAL_REFERENCE.csv",
-    min_rows=1,
-    target_hei_dataset="REFERENCE_DATASET_ID",
-    tenant="nlhcr-1",  # Explicitly set to use nlhcr-1 tenant
+# Example 2: Example dataset with wildcards (using nlhcr-1 tenant)
+example_dataset = Dataset(
+    name="Example Dataset",
+    filename_pattern="some_csv_file_with_wildcards_???????.csv",
+    min_rows=10000,
+    target_hei_dataset="TARGET_HEI_TABLE_NAME",
+    tenant="nlhcr-1",  # Use nlhcr-1 tenant
     columns=[
-        Column("hospital_code", CharType(3), nullable=False),
-        Column("hospital_name", VarcharType(100), nullable=False),
-        Column("trust_code", CharType(5), nullable=False),
-        Column("region_code", CharType(2), nullable=False),
-        Column("bed_count", IntegerType(precision=4)),  # 9999
-        Column("is_teaching", BooleanType()),
-        Column("last_updated", TimestampType())  # Any valid timestamp
+        Column("First_column_name", VarcharType(200), nullable=False), # Required
+        Column("Second_column_name", VarcharType(200)),
+        Column("Third_column_name", VarcharType(200)),
+        Column("Fourth_column_name", VarcharType(200)),
+        Column("Fifth_column_name", VarcharType(200)),
     ]
 )
 
