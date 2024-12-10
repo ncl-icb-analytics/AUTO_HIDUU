@@ -58,51 +58,125 @@ DEFAULT_CONFIG = {
 # Add nullable=False to make column required
 # ========================================
 
-# Example 1: Dataset with date-based filename
-patient_visits = Dataset(
-    name="Patient Visits",
-    filename_pattern="PATIENT_VISITS_????????.csv", # Will match PATIENT_VISITS_20241125.csv
-    min_rows=100,
-    target_hei_dataset="VISITS_DATASET_ID",
-    upload_reason="Patient visits from xxx source dated:", # Date will be appended
-    columns=[
-        Column("nhs_number", CharType(10), nullable=False),
-        Column("hospital_code", CharType(3), nullable=False),
-        Column("visit_date", DateType("%Y-%m-%d"), nullable=False),
-        Column("appointment_time", TimestampType()),
-        Column("consultant_name", VarcharType(50)),
-        Column("diagnosis_code", VarcharType(20), nullable=False),
-        Column("notes", VarcharType(1000)),
-        Column("weight_kg", NumericType(precision=5, scale=2)),     # 999.99
-        Column("height_cm", IntegerType(precision=3)),              # 999
-        Column("temperature", NumericType(precision=4, scale=1)),   # 999.9
-        Column("blood_pressure", VarcharType(7)),                   # 120/80
-        Column("heart_rate", IntegerType(precision=3)),             # 999
-        Column("is_emergency", BooleanType(), nullable=False),
-        Column("needs_followup", BooleanType(), nullable=False)
-    ]
-)
 
-# Example 2: Fixed filename dataset
-reference_data = Dataset(
-    name="Reference Data",
-    filename_pattern="HOSPITAL_REFERENCE.csv",
+#aff_hash0: Fixed filename dataset
+aff_Hash0 = Dataset(
+    name="aff_hash0",
+    filename_pattern="Aff_Hash0.csv",
     min_rows=1,
-    target_hei_dataset="REFERENCE_DATASET_ID",
+    target_hei_dataset="Aff_Hash0",
     columns=[
-        Column("hospital_code", CharType(3), nullable=False),
-        Column("hospital_name", VarcharType(100), nullable=False),
-        Column("trust_code", CharType(5), nullable=False),
-        Column("region_code", CharType(2), nullable=False),
-        Column("bed_count", IntegerType(precision=4)),  # 9999
-        Column("is_teaching", BooleanType()),
-        Column("last_updated", TimestampType())  # Any valid timestamp
+        Column("ministry_organization_id", VarcharType(200)),
+        Column("ref_record_type", VarcharType(200)),
+        Column("source_type", VarcharType(200)),
+        Column("source_id", VarcharType(200)),
+        Column("source_version", VarcharType(200)),
+        Column("source_description", VarcharType(200)),
+        Column("ref_record_type_key", VarcharType(200)),
+        Column("source_type_key", VarcharType(200)),
+        Column("population_id", VarcharType(200)),
+        Column("data_point_seq", VarcharType(200)),
+        Column("hash_value", VarcharType(200)),
+        Column("hash_5", VarcharType(200)),
+        Column("dc_extracted", VarcharType(200)),
+        Column("lsoa21cd", VarcharType(200))
     ]
 )
 
+aff_Hash1 = Dataset(
+    name="aff_hash1",
+    filename_pattern="Aff_Hash1.csv",
+    min_rows=1,
+    target_hei_dataset="Aff_Hash1",
+    columns=[
+        Column("ministry_organization_id", VarcharType(200)),
+        Column("ref_record_type", VarcharType(200)),
+        Column("source_type", VarcharType(200)),
+        Column("source_id", VarcharType(200)),
+        Column("source_version", VarcharType(200)),
+        Column("source_description", VarcharType(200)),
+        Column("ref_record_type_key", VarcharType(200)),
+        Column("source_type_key", VarcharType(200)),
+        Column("population_id", VarcharType(200)),
+        Column("data_point_seq", VarcharType(200)),
+        Column("hash_value", VarcharType(200)),
+        Column("hash_5", VarcharType(200)),
+        Column("dc_extracted", VarcharType(200)),
+        Column("lsoa21cd", VarcharType(200))
+       
+    ]
+)
+
+aff_Hash2 = Dataset(
+    name="aff_hash2",
+    filename_pattern="Aff_Hash2.csv",
+    min_rows=1,
+    target_hei_dataset="Aff_Hash2",
+    columns=[
+        Column("ministry_organization_id", VarcharType(200)),
+        Column("ref_record_type", VarcharType(200)),
+        Column("source_type", VarcharType(200)),
+        Column("source_id", VarcharType(200)),
+        Column("source_version", VarcharType(200)),
+        Column("source_description", VarcharType(200)),
+        Column("ref_record_type_key", VarcharType(200)),
+        Column("source_type_key", VarcharType(200)),
+        Column("population_id", VarcharType(200)),
+        Column("data_point_seq", VarcharType(200)),
+        Column("hash_value", VarcharType(200)),
+        Column("hash_5", VarcharType(200)),
+        Column("dc_extracted", VarcharType(200)),
+        Column("lsoa21cd", VarcharType(200))
+          ]
+)
+aff_Hash3 = Dataset(
+    name="aff_hash3",
+    filename_pattern="Aff_Hash3.csv",
+    min_rows=1,
+    target_hei_dataset="Aff_Hash3",
+    columns=[
+        Column("ministry_organization_id", VarcharType(200)),
+        Column("ref_record_type", VarcharType(200)),
+        Column("source_type", VarcharType(200)),
+        Column("source_id", VarcharType(200)),
+        Column("source_version", VarcharType(200)),
+        Column("source_description", VarcharType(200)),
+        Column("ref_record_type_key", VarcharType(200)),
+        Column("source_type_key", VarcharType(200)),
+        Column("population_id", VarcharType(200)),
+        Column("data_point_seq", VarcharType(200)),
+        Column("hash_value", VarcharType(200)),
+        Column("hash_5", VarcharType(200)),
+        Column("dc_extracted", VarcharType(200)),
+        Column("lsoa21cd", VarcharType(200))
+          ]
+)
+aff_Hash4 = Dataset(
+    name="aff_hash4",
+    filename_pattern="Aff_Hash4.csv",
+    min_rows=1,
+    target_hei_dataset="Aff_Hash4",
+    columns=[
+        Column("ministry_organization_id", VarcharType(200)),
+        Column("ref_record_type", VarcharType(200)),
+        Column("source_type", VarcharType(200)),
+        Column("source_id", VarcharType(200)),
+        Column("source_version", VarcharType(200)),
+        Column("source_description", VarcharType(200)),
+        Column("ref_record_type_key", VarcharType(200)),
+        Column("source_type_key", VarcharType(200)),
+        Column("population_id", VarcharType(200)),
+        Column("data_point_seq", VarcharType(200)),
+        Column("hash_value", VarcharType(200)),
+        Column("hash_5", VarcharType(200)),
+        Column("dc_extracted", VarcharType(200)),
+        Column("lsoa21cd", VarcharType(200))
+          ]
+)
 # Automatically collect all Dataset instances
 dataset_files = {
     obj.name: obj.to_dict()
     for name, obj in globals().items()
     if isinstance(obj, Dataset)
 } 
+#ministry_organization_id	ref_record_type	source_type	source_id	source_version	source_description	ref_record_type_key	source_type_key	population_id	data_point_seq	hash_value	hash_5	dc_extracted	lsoa21cd
