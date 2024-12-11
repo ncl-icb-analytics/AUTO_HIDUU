@@ -64,6 +64,7 @@ aff_Hash0 = Dataset(
     filename_pattern="Aff_Hash0.csv",
     min_rows=1,
     target_hei_dataset="Aff_Hash0",
+    tenant="nlhcr-2",
     columns=[
         Column("ministry_organization_id", VarcharType(200)),
         Column("ref_record_type", VarcharType(200)),
@@ -87,6 +88,7 @@ aff_Hash1 = Dataset(
     filename_pattern="Aff_Hash1.csv",
     min_rows=1,
     target_hei_dataset="Aff_Hash1",
+    tenant="nlhcr-2",
     columns=[
         Column("ministry_organization_id", VarcharType(200)),
         Column("ref_record_type", VarcharType(200)),
@@ -111,6 +113,7 @@ aff_Hash2 = Dataset(
     filename_pattern="Aff_Hash2.csv",
     min_rows=1,
     target_hei_dataset="Aff_Hash2",
+    tenant="nlhcr-2",
     columns=[
         Column("ministry_organization_id", VarcharType(200)),
         Column("ref_record_type", VarcharType(200)),
@@ -133,6 +136,7 @@ aff_Hash3 = Dataset(
     filename_pattern="Aff_Hash3.csv",
     min_rows=1,
     target_hei_dataset="Aff_Hash3",
+    tenant="nlhcr-2",
     columns=[
         Column("ministry_organization_id", VarcharType(200)),
         Column("ref_record_type", VarcharType(200)),
@@ -155,6 +159,7 @@ aff_Hash4 = Dataset(
     filename_pattern="Aff_Hash4.csv",
     min_rows=1,
     target_hei_dataset="Aff_Hash4",
+    tenant="nlhcr-2",
     columns=[
         Column("ministry_organization_id", VarcharType(200)),
         Column("ref_record_type", VarcharType(200)),

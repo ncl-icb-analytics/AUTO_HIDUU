@@ -140,7 +140,7 @@ def _upload_file(file, file_path, file_date, context, uploaded_files, failed_fil
     tenant = context.dataset_config.get('tenant', 'nlhcr')
     
     # Get tenant-specific credentials
-    tenant_prefix = 'NLHCR1_' if tenant == 'nlhcr-1' else 'NLHCR_'
+    tenant_prefix = 'NLHCR2_' if tenant == 'nlhcr-2' else 'NLHCR_'
     credentials = {
         'said': context.auth_credentials[f'{tenant_prefix}SAID'],
         'sas': context.auth_credentials[f'{tenant_prefix}SAS'],

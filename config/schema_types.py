@@ -138,15 +138,15 @@ class Dataset:
     min_rows: int
     target_hei_dataset: str
     columns: List[Column]
-    tenant: str = "nlhcr"  # Default to nlhcr, can be "nlhcr" or "nlhcr-1"
+    tenant: str = "nlhcr"  # Default to nlhcr, can be "nlhcr" or "nlhcr-2"
     upload_reason: Optional[str] = None
     spec_version: Optional[str] = None
     file_id: Optional[str] = None
 
     def __post_init__(self):
         """Validate and convert configuration"""
-        if self.tenant not in ["nlhcr", "nlhcr-1"]:
-            raise ValueError("Tenant must be either 'nlhcr' or 'nlhcr-1'")
+        if self.tenant not in ["nlhcr", "nlhcr-2"]:
+            raise ValueError("Tenant must be either 'nlhcr' or 'nlhcr-2'")
             
         pattern = self.filename_pattern
         
