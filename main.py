@@ -11,18 +11,22 @@ def main():
     # Load settings from .env
     load_dotenv()
 
-    # Get paths and credentials
+    # Get paths
     input_path = os.getenv('INPUT_FOLDER_PATH')
     hiduu_dir = os.getenv('HIDUU_DIRECTORY')
+
+    # Get credentials for both tenants
     auth_credentials = {
-        'said': os.getenv('SAID'),
-        'sas': os.getenv('SAS'),
-        'sid': os.getenv('SID')
+        'NLHCR_SAID': os.getenv('NLHCR_SAID'),
+        'NLHCR_SAS': os.getenv('NLHCR_SAS'),
+        'NLHCR_SID': os.getenv('NLHCR_SID'),
+        'NLHCR1_SAID': os.getenv('NLHCR1_SAID'),
+        'NLHCR1_SAS': os.getenv('NLHCR1_SAS'),
+        'NLHCR1_SID': os.getenv('NLHCR1_SID')
     }
 
     # Validate required settings
-    if not all([input_path, hiduu_dir, auth_credentials['said'], 
-                auth_credentials['sas'], auth_credentials['sid']]):
+    if not all([input_path, hiduu_dir] + list(auth_credentials.values())):
         raise ValueError("Missing required environment variables. Please check your .env file.")
 
     # Start the upload process

@@ -137,25 +137,45 @@ def _upload_file(file, file_path, file_date, context, uploaded_files, failed_fil
     reason = context.dataset_config.get('upload_reason', DEFAULT_CONFIG['upload_reason'])
     spec_version = context.dataset_config.get('spec_version', DEFAULT_CONFIG['spec_version'])
     file_id = context.dataset_config.get('file_id', DEFAULT_CONFIG['file_id'])
+    tenant = context.dataset_config.get('tenant', 'nlhcr')
+    
+    # Get tenant-specific credentials
+    tenant_prefix = 'NLHCR1_' if tenant == 'nlhcr-1' else 'NLHCR_'
+    credentials = {
+        'said': context.auth_credentials[f'{tenant_prefix}SAID'],
+        'sas': context.auth_credentials[f'{tenant_prefix}SAS'],
+        'sid': context.auth_credentials[f'{tenant_prefix}SID']
+    }
     
     cmd = (f'hi-data-upload-utility uploadDataSetFile '
-           f'-said {context.auth_credentials["said"]} '
-           f'-sas {context.auth_credentials["sas"]} '
-           f'-sid {context.auth_credentials["sid"]} '
+           f'-said {credentials["said"]} '
+           f'-sas {credentials["sas"]} '
+           f'-sid {credentials["sid"]} '
            f'-dsid {context.dataset_config["target_hei_dataset"]} '
            f'-sv {spec_version} '
            f'-fid {file_id} '
            f'-rl {file_date} '
            f'-f {file_path} '
+           f'-cm {tenant} '
            f'-re "{reason} {file_date}"')
     
     try:
         result = subprocess.run(cmd, cwd=context.hiduu_dir, shell=True, 
                              check=True, capture_output=True, text=True)
+        
+        # Check if HIDUU output indicates a failure (case insensitive)
+        output_upper = result.stdout.upper()
+        if "ERROR" in output_upper or "FAILED" in output_upper:
+            failed_files.append((file, f"Upload failed: {result.stdout}"))
+            print(f"Error uploading {file}")
+            print(f"Error details: {result.stdout}")
+            return False
+            
         uploaded_files.append((file, context.dataset_config["target_hei_dataset"]))
         print(f"Successfully uploaded {file} with {row_count:,} rows")
         print(f"Output: {result.stdout}")
         return True
+        
     except subprocess.CalledProcessError as e:
         failed_files.append((file, f"Upload failed: {e.stderr}"))
         print(f"Error uploading {file}")

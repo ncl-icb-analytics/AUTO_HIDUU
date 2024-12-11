@@ -138,12 +138,16 @@ class Dataset:
     min_rows: int
     target_hei_dataset: str
     columns: List[Column]
+    tenant: str = "nlhcr"  # Default to nlhcr, can be "nlhcr" or "nlhcr-1"
     upload_reason: Optional[str] = None
     spec_version: Optional[str] = None
     file_id: Optional[str] = None
 
     def __post_init__(self):
-        """Convert filename pattern to regex if it contains wildcards"""
+        """Validate and convert configuration"""
+        if self.tenant not in ["nlhcr", "nlhcr-1"]:
+            raise ValueError("Tenant must be either 'nlhcr' or 'nlhcr-1'")
+            
         pattern = self.filename_pattern
         
         if not pattern.endswith(('.csv', '.txt')):
@@ -167,7 +171,8 @@ class Dataset:
             'filename_pattern': self.filename_pattern,
             'min_rows': self.min_rows,
             'target_hei_dataset': self.target_hei_dataset,
-            'schema': {col.name: col.to_dict() for col in self.columns}
+            'schema': {col.name: col.to_dict() for col in self.columns},
+            'tenant': self.tenant
         }
         
         if self.upload_reason:
