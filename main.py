@@ -20,9 +20,9 @@ def main():
         'NLHCR_SAID': os.getenv('NLHCR_SAID'),
         'NLHCR_SAS': os.getenv('NLHCR_SAS'),
         'NLHCR_SID': os.getenv('NLHCR_SID'),
-        'NLHCR1_SAID': os.getenv('NLHCR1_SAID'),
-        'NLHCR1_SAS': os.getenv('NLHCR1_SAS'),
-        'NLHCR1_SID': os.getenv('NLHCR1_SID')
+        'NLHCR2_SAID': os.getenv('NLHCR2_SAID'),
+        'NLHCR2_SAS': os.getenv('NLHCR2_SAS'),
+        'NLHCR2_SID': os.getenv('NLHCR2_SID')
     }
 
     # Validate required settings
