@@ -30,13 +30,6 @@ def _try_read_file(file_path, expected_columns):
     """
     Attempts to read a file with different encodings and formats.
     Verifies that the columns match what we expect before accepting the read.
-    
-    Args:
-        file_path: Path to the file to read
-        expected_columns: Set of column names we expect (case-insensitive)
-        
-    Returns:
-        tuple: (dataframe, error_message)
     """
     # List of encodings to try
     encodings = ['utf-8', 'utf-8-sig', 'iso-8859-1', 'cp1252', 'latin1']
@@ -52,47 +45,50 @@ def _try_read_file(file_path, expected_columns):
     # Convert expected columns to normalized form
     expected_columns_norm = {_normalize_column_name(col) for col in expected_columns}
     
-    best_attempt = None  # Store the best read attempt for error reporting
+    best_attempt = None
+    best_encoding = None
+    best_delimiter = None
     
     for encoding in encodings:
-        try:
-            # First try comma delimiter (most common)
+        for delimiter, name in delimiters:
             try:
-                df = pd.read_csv(file_path, encoding=encoding, delimiter=',')
-                if len(df.columns) > 1:
-                    # Normalize file columns
-                    file_columns_norm = {_normalize_column_name(col) for col in df.columns}
-                    if file_columns_norm == expected_columns_norm:
-                        print(f"Successfully read file using {encoding} encoding and comma delimiter")
-                        return df, None
-                    # Store this attempt if it's the first one or has more columns than previous
-                    if not best_attempt or len(df.columns) > len(best_attempt.columns):
-                        best_attempt = df
-            except Exception:
-                pass
+                # Try to read the file
+                df = pd.read_csv(file_path, encoding=encoding, delimiter=delimiter)
                 
-            # If comma failed or columns didn't match, try other delimiters
-            for delimiter, name in delimiters[1:]:
-                try:
-                    df = pd.read_csv(file_path, encoding=encoding, delimiter=delimiter)
-                    if len(df.columns) > 1:
+                # Verify we can actually access the columns and data
+                if len(df.columns) > 1:
+                    try:
+                        # Try to access first row to verify we can read the data
+                        if len(df) > 0:
+                            _ = df.iloc[0]
+                        
+                        # Normalize and check columns
                         file_columns_norm = {_normalize_column_name(col) for col in df.columns}
+                        
+                        # If columns match exactly, we've found our match
                         if file_columns_norm == expected_columns_norm:
                             print(f"Successfully read file using {encoding} encoding and {name} delimiter")
+                            print(f"Found {len(df.columns)} columns: {', '.join(df.columns)}")
                             return df, None
-                        # Store this attempt if it has more columns than previous
+                            
+                        # Store this attempt if it's the best so far
                         if not best_attempt or len(df.columns) > len(best_attempt.columns):
                             best_attempt = df
-                except Exception:
-                    continue
-                    
-        except UnicodeDecodeError:
-            continue
-        except Exception:
-            continue
+                            best_encoding = encoding
+                            best_delimiter = name
+                            
+                    except Exception as e:
+                        print(f"Warning: Could read file but not access data with {encoding} and {name}: {str(e)}")
+                        continue
+                        
+            except Exception as e:
+                continue
     
     # If we got here, no attempt matched exactly. Provide detailed mismatch info
     if best_attempt is not None:
+        print(f"\nBest attempt was using {best_encoding} encoding and {best_delimiter} delimiter")
+        print(f"Found {len(best_attempt.columns)} columns: {', '.join(best_attempt.columns)}")
+        
         found_columns_norm = {_normalize_column_name(col): col for col in best_attempt.columns}
         expected_columns_norm = {_normalize_column_name(col): col for col in expected_columns}
         
