@@ -12,6 +12,20 @@ import os
 import pandas as pd
 import numpy as np
 
+def _normalize_column_name(column):
+    """
+    Normalizes column names by:
+    1. Converting to lowercase
+    2. Treating spaces, underscores, and hyphens as equivalent
+    
+    Examples:
+        "Date_of_Birth"  -> "date of birth"
+        "Date of Birth"  -> "date of birth"
+        "Date-of-Birth"  -> "date of birth"
+        "DateOfBirth"    -> "dateofbirth" (unchanged)
+    """
+    return column.lower().replace('_', ' ').replace('-', ' ')
+
 def _try_read_file(file_path, expected_columns):
     """
     Attempts to read a file with different encodings and formats.
@@ -35,8 +49,8 @@ def _try_read_file(file_path, expected_columns):
         (';', 'semicolon') # Finally semicolon
     ]
     
-    # Convert expected columns to lowercase for case-insensitive comparison
-    expected_columns_lower = {col.lower() for col in expected_columns}
+    # Convert expected columns to normalized form
+    expected_columns_norm = {_normalize_column_name(col) for col in expected_columns}
     
     best_attempt = None  # Store the best read attempt for error reporting
     
@@ -46,8 +60,9 @@ def _try_read_file(file_path, expected_columns):
             try:
                 df = pd.read_csv(file_path, encoding=encoding, delimiter=',')
                 if len(df.columns) > 1:
-                    file_columns_lower = {col.lower() for col in df.columns}
-                    if file_columns_lower == expected_columns_lower:
+                    # Normalize file columns
+                    file_columns_norm = {_normalize_column_name(col) for col in df.columns}
+                    if file_columns_norm == expected_columns_norm:
                         print(f"Successfully read file using {encoding} encoding and comma delimiter")
                         return df, None
                     # Store this attempt if it's the first one or has more columns than previous
@@ -61,8 +76,8 @@ def _try_read_file(file_path, expected_columns):
                 try:
                     df = pd.read_csv(file_path, encoding=encoding, delimiter=delimiter)
                     if len(df.columns) > 1:
-                        file_columns_lower = {col.lower() for col in df.columns}
-                        if file_columns_lower == expected_columns_lower:
+                        file_columns_norm = {_normalize_column_name(col) for col in df.columns}
+                        if file_columns_norm == expected_columns_norm:
                             print(f"Successfully read file using {encoding} encoding and {name} delimiter")
                             return df, None
                         # Store this attempt if it has more columns than previous
@@ -78,13 +93,15 @@ def _try_read_file(file_path, expected_columns):
     
     # If we got here, no attempt matched exactly. Provide detailed mismatch info
     if best_attempt is not None:
-        found_columns = set(col.lower() for col in best_attempt.columns)
-        missing = expected_columns_lower - found_columns
-        unexpected = found_columns - expected_columns_lower
+        found_columns_norm = {_normalize_column_name(col): col for col in best_attempt.columns}
+        expected_columns_norm = {_normalize_column_name(col): col for col in expected_columns}
+        
+        missing = set(expected_columns_norm.keys()) - set(found_columns_norm.keys())
+        unexpected = set(found_columns_norm.keys()) - set(expected_columns_norm.keys())
         
         error_msg = [
             f"Could not find exact column match using any encoding or delimiter.",
-            f"\nFound {len(found_columns)} columns vs {len(expected_columns)} expected.",
+            f"\nFound {len(found_columns_norm)} columns vs {len(expected_columns)} expected.",
             "\nColumns found in file:",
             ", ".join(sorted(best_attempt.columns)),
             "\nExpected columns:",
@@ -93,11 +110,11 @@ def _try_read_file(file_path, expected_columns):
         
         if missing:
             error_msg.append("\nMissing columns:")
-            error_msg.append(", ".join(sorted(col for col in expected_columns if col.lower() in missing)))
+            error_msg.append(", ".join(sorted(expected_columns_norm[col] for col in missing)))
             
         if unexpected:
             error_msg.append("\nUnexpected columns:")
-            error_msg.append(", ".join(sorted(col for col in best_attempt.columns if col.lower() in unexpected)))
+            error_msg.append(", ".join(sorted(found_columns_norm[col] for col in unexpected)))
             
         return None, "\n".join(error_msg)
     
