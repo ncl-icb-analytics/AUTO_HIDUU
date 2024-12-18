@@ -12,45 +12,65 @@ import os
 import pandas as pd
 import numpy as np
 
-def _try_read_file(file_path):
+def _try_read_file(file_path, expected_columns):
     """
     Attempts to read a file with different encodings and formats.
-    Returns tuple of (dataframe, encoding_used) or (None, error_message)
+    Verifies that the columns match what we expect before accepting the read.
+    
+    Args:
+        file_path: Path to the file to read
+        expected_columns: Set of column names we expect (case-insensitive)
+        
+    Returns:
+        tuple: (dataframe, error_message)
     """
     # List of encodings to try
     encodings = ['utf-8', 'utf-8-sig', 'iso-8859-1', 'cp1252', 'latin1']
     
-    # Determine if file is CSV or TXT
-    is_txt = file_path.lower().endswith('.txt')
+    # List of delimiters to try, in priority order
+    delimiters = [
+        (',', 'comma'),    # Try comma first (most common)
+        ('|', 'pipe'),     # Then pipe
+        ('\t', 'tab'),     # Then tab
+        (';', 'semicolon') # Finally semicolon
+    ]
+    
+    # Convert expected columns to lowercase for case-insensitive comparison
+    expected_columns_lower = {col.lower() for col in expected_columns}
     
     for encoding in encodings:
         try:
-            if is_txt:
-                # For TXT files, try different delimiters
-                for delimiter in ['\t', '|', ',']:
-                    try:
-                        df = pd.read_csv(file_path, encoding=encoding, delimiter=delimiter)
-                        # If we got here, the read was successful
-                        print(f"Successfully read TXT file using {encoding} encoding and '{delimiter}' delimiter")
+            # First try comma delimiter (most common)
+            try:
+                df = pd.read_csv(file_path, encoding=encoding, delimiter=',')
+                if len(df.columns) > 1:
+                    # Check if columns match what we expect
+                    file_columns_lower = {col.lower() for col in df.columns}
+                    if file_columns_lower == expected_columns_lower:
+                        print(f"Successfully read file using {encoding} encoding and comma delimiter")
                         return df, None
-                    except pd.errors.EmptyDataError:
-                        return None, "File is empty"
-                    except Exception:
-                        continue  # Try next delimiter
-            else:
-                # For CSV files
-                df = pd.read_csv(file_path, encoding=encoding)
-                print(f"Successfully read CSV file using {encoding} encoding")
-                return df, None
+            except Exception:
+                pass  # Try next approach if comma fails
                 
-        except pd.errors.EmptyDataError:
-            return None, "File is empty"
+            # If comma failed or columns didn't match, try other delimiters
+            for delimiter, name in delimiters[1:]:  # Skip comma as we already tried it
+                try:
+                    df = pd.read_csv(file_path, encoding=encoding, delimiter=delimiter)
+                    if len(df.columns) > 1:
+                        # Check if columns match what we expect
+                        file_columns_lower = {col.lower() for col in df.columns}
+                        if file_columns_lower == expected_columns_lower:
+                            print(f"Successfully read file using {encoding} encoding and {name} delimiter")
+                            return df, None
+                except Exception:
+                    continue
+                    
         except UnicodeDecodeError:
             continue  # Try next encoding
         except Exception as e:
             continue  # Try next encoding
             
-    return None, f"Could not read file with any encoding (tried: {', '.join(encodings)})"
+    return None, f"Could not read file with matching columns using any encoding (tried: {', '.join(encodings)}) or delimiter (tried: comma, pipe, tab, semicolon)"
 
 def validate_file(file_path, dataset_config):
     """
@@ -61,8 +81,11 @@ def validate_file(file_path, dataset_config):
     if not os.path.exists(file_path):
         return False, f"File not found: {file_path}", 0
         
+    # Get expected columns from schema
+    expected_columns = set(dataset_config['schema'].keys())
+    
     # Try to read the file with different encodings
-    df, error = _try_read_file(file_path)
+    df, error = _try_read_file(file_path, expected_columns)
     if error:
         return False, error, 0
         
