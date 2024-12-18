@@ -12,9 +12,49 @@ import os
 import pandas as pd
 import numpy as np
 
+def _try_read_file(file_path):
+    """
+    Attempts to read a file with different encodings and formats.
+    Returns tuple of (dataframe, encoding_used) or (None, error_message)
+    """
+    # List of encodings to try
+    encodings = ['utf-8', 'utf-8-sig', 'iso-8859-1', 'cp1252', 'latin1']
+    
+    # Determine if file is CSV or TXT
+    is_txt = file_path.lower().endswith('.txt')
+    
+    for encoding in encodings:
+        try:
+            if is_txt:
+                # For TXT files, try different delimiters
+                for delimiter in ['\t', '|', ',']:
+                    try:
+                        df = pd.read_csv(file_path, encoding=encoding, delimiter=delimiter)
+                        # If we got here, the read was successful
+                        print(f"Successfully read TXT file using {encoding} encoding and '{delimiter}' delimiter")
+                        return df, None
+                    except pd.errors.EmptyDataError:
+                        return None, "File is empty"
+                    except Exception:
+                        continue  # Try next delimiter
+            else:
+                # For CSV files
+                df = pd.read_csv(file_path, encoding=encoding)
+                print(f"Successfully read CSV file using {encoding} encoding")
+                return df, None
+                
+        except pd.errors.EmptyDataError:
+            return None, "File is empty"
+        except UnicodeDecodeError:
+            continue  # Try next encoding
+        except Exception as e:
+            continue  # Try next encoding
+            
+    return None, f"Could not read file with any encoding (tried: {', '.join(encodings)})"
+
 def validate_file(file_path, dataset_config):
     """
-    Validates if a CSV file matches our expected format.
+    Validates if a CSV/TXT file matches our expected format.
     Column order is not important - checks only that all required columns are present.
     Files with extra columns will be rejected.
     
@@ -32,11 +72,10 @@ def validate_file(file_path, dataset_config):
     if not os.path.exists(file_path):
         return False, f"File not found: {file_path}", 0
         
-    # Try to read the file
-    try:
-        df = pd.read_csv(file_path)
-    except Exception as e:
-        return False, f"Could not read file: {str(e)}", 0
+    # Try to read the file with different encodings
+    df, error = _try_read_file(file_path)
+    if error:
+        return False, error, 0
         
     row_count = len(df)
         
