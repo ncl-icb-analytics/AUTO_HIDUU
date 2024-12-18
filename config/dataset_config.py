@@ -1233,14 +1233,13 @@ enfield_asc_file = Dataset(
         Column('Service Start Date', VarcharType(200)),
         Column('Service End Date', VarcharType(200)),
         Column('Service Cessation Date', VarcharType(200)),
-        Column('Primary Support Reason', VarcharType(200)),
-        Column('Support Class Setting', VarcharType(200)),
+        Column('SupportClass Setting', VarcharType(200)),
         Column('Support Group', VarcharType(200)),
         Column('Support Provider', VarcharType(200)),
         Column('Patient Deceased Date', VarcharType(200)),
         Column('Support from Carer', VarcharType(200)),
         Column('Support Provided to Carer', VarcharType(200)),
-        Column('Ld Accommodation Type', VarcharType(200)),
+        Column('Ld Accomodation Type', VarcharType(200)),
         Column('Ld Employment Status', VarcharType(200)),
     ])
 
