@@ -55,18 +55,7 @@ def _try_read_file(file_path):
 def validate_file(file_path, dataset_config):
     """
     Validates if a CSV/TXT file matches our expected format.
-    Column order is not important - checks only that all required columns are present.
-    Files with extra columns will be rejected.
-    
-    Args:
-        file_path (str): Path to the CSV/TXT file to validate
-        dataset_config (dict): Configuration dictionary containing schema and validation rules
-        
-    Returns:
-        tuple: (is_valid, message, row_count) where:
-            - is_valid (bool): True if file passes all validations
-            - message (str): Success message or error description
-            - row_count (int): Number of rows in the file
+    Column names are validated case-insensitively.
     """
     # Basic file checks
     if not os.path.exists(file_path):
@@ -83,27 +72,37 @@ def validate_file(file_path, dataset_config):
     if row_count < dataset_config['min_rows']:
         return False, f"File needs at least {dataset_config['min_rows']} rows, but has {row_count}", row_count
         
-    # Check columns match schema exactly (order doesn't matter)
+    # Create case-insensitive mappings
     schema = dataset_config['schema']
-    file_columns = set(df.columns)
-    required_columns = set(schema.keys())
+    file_columns_lower = {col.lower(): col for col in df.columns}
+    required_columns_lower = {col.lower(): col for col in schema.keys()}
     
     # Check for missing required columns
-    missing_cols = required_columns - file_columns
+    missing_cols = set(required_columns_lower.keys()) - set(file_columns_lower.keys())
     if missing_cols:
-        return False, f"Missing required columns: {', '.join(sorted(missing_cols))}", row_count
+        # Show original column names in error message
+        missing_original = [required_columns_lower[col] for col in missing_cols]
+        return False, f"Missing required columns: {', '.join(sorted(missing_original))}", row_count
         
     # Check for extra columns
-    extra_cols = file_columns - required_columns
+    extra_cols = set(file_columns_lower.keys()) - set(required_columns_lower.keys())
     if extra_cols:
-        return False, f"File contains unexpected columns: {', '.join(sorted(extra_cols))}", row_count
+        # Show original column names in error message
+        extra_original = [file_columns_lower[col] for col in extra_cols]
+        return False, f"File contains unexpected columns: {', '.join(sorted(extra_original))}", row_count
         
-    # Check each configured column's data
+    # Create mapping of file columns to schema columns
+    column_mapping = {
+        file_columns_lower[col.lower()]: col 
+        for col in schema.keys()
+    }
+    
+    # Check each configured column's data using the mapping
     errors = []
-    for col_name, rules in schema.items():
-        col_errors = _check_column(df[col_name], rules, col_name)
+    for file_col, schema_col in column_mapping.items():
+        col_errors = _check_column(df[file_col], schema[schema_col], schema_col)
         if col_errors:
-            errors.extend(f"Column '{col_name}': {error}" for error in col_errors)
+            errors.extend(f"Column '{schema_col}': {error}" for error in col_errors)
             
     if errors:
         return False, "\n".join(errors), row_count
