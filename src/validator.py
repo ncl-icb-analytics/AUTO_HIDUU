@@ -38,39 +38,70 @@ def _try_read_file(file_path, expected_columns):
     # Convert expected columns to lowercase for case-insensitive comparison
     expected_columns_lower = {col.lower() for col in expected_columns}
     
+    best_attempt = None  # Store the best read attempt for error reporting
+    
     for encoding in encodings:
         try:
             # First try comma delimiter (most common)
             try:
                 df = pd.read_csv(file_path, encoding=encoding, delimiter=',')
                 if len(df.columns) > 1:
-                    # Check if columns match what we expect
                     file_columns_lower = {col.lower() for col in df.columns}
                     if file_columns_lower == expected_columns_lower:
                         print(f"Successfully read file using {encoding} encoding and comma delimiter")
                         return df, None
+                    # Store this attempt if it's the first one or has more columns than previous
+                    if not best_attempt or len(df.columns) > len(best_attempt.columns):
+                        best_attempt = df
             except Exception:
-                pass  # Try next approach if comma fails
+                pass
                 
             # If comma failed or columns didn't match, try other delimiters
-            for delimiter, name in delimiters[1:]:  # Skip comma as we already tried it
+            for delimiter, name in delimiters[1:]:
                 try:
                     df = pd.read_csv(file_path, encoding=encoding, delimiter=delimiter)
                     if len(df.columns) > 1:
-                        # Check if columns match what we expect
                         file_columns_lower = {col.lower() for col in df.columns}
                         if file_columns_lower == expected_columns_lower:
                             print(f"Successfully read file using {encoding} encoding and {name} delimiter")
                             return df, None
+                        # Store this attempt if it has more columns than previous
+                        if not best_attempt or len(df.columns) > len(best_attempt.columns):
+                            best_attempt = df
                 except Exception:
                     continue
                     
         except UnicodeDecodeError:
-            continue  # Try next encoding
-        except Exception as e:
-            continue  # Try next encoding
+            continue
+        except Exception:
+            continue
+    
+    # If we got here, no attempt matched exactly. Provide detailed mismatch info
+    if best_attempt is not None:
+        found_columns = set(col.lower() for col in best_attempt.columns)
+        missing = expected_columns_lower - found_columns
+        unexpected = found_columns - expected_columns_lower
+        
+        error_msg = [
+            f"Could not find exact column match using any encoding or delimiter.",
+            f"\nFound {len(found_columns)} columns vs {len(expected_columns)} expected.",
+            "\nColumns found in file:",
+            ", ".join(sorted(best_attempt.columns)),
+            "\nExpected columns:",
+            ", ".join(sorted(expected_columns))
+        ]
+        
+        if missing:
+            error_msg.append("\nMissing columns:")
+            error_msg.append(", ".join(sorted(col for col in expected_columns if col.lower() in missing)))
             
-    return None, f"Could not read file with matching columns using any encoding (tried: {', '.join(encodings)}) or delimiter (tried: comma, pipe, tab, semicolon)"
+        if unexpected:
+            error_msg.append("\nUnexpected columns:")
+            error_msg.append(", ".join(sorted(col for col in best_attempt.columns if col.lower() in unexpected)))
+            
+        return None, "\n".join(error_msg)
+    
+    return None, f"Could not read file with any encoding (tried: {', '.join(encodings)}) or delimiter (tried: comma, pipe, tab, semicolon)"
 
 def validate_file(file_path, dataset_config):
     """
