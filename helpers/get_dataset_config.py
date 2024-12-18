@@ -33,10 +33,16 @@ dataset_files_map = {
     'dvPTL_WHIT_CSTART': 'dvPTL_WHIT_CSTART',
     'dvPTL_WHIT_CSTOP': 'dvPTL_WHIT_CSTOP',
     'dvPTL_WHIT_DIAGNOSTIC': 'dvPTL_WHIT_DIAGNOSTIC',
+    # ASC_FILES
+     'Barnet_ASC_File': 'ASC_BARNET_STAGING',
+        'Camden_ASC_File': 'ASC_CAMDEN_STAGING_NEW',
+        'Enfield_ASC_File': 'ASC_ENFIELD_STAGING',
+        'Haringey_ASC_File': 'ASC_HARINGEY_STAGING_NEW',
+        'Islington_ASC_File': 'ASC_ISLINGTON_STAGING',
 }
 
 # Directory where CSV files are stored
-DATA_DIR = "C:\\Users\\JaphetOjo\\Downloads\\PTLs"
+DATA_DIR = "C:\\Users\\JaphetOjo\\Downloads\\ASC_FILES"
 
 # Default configuration values
 DEFAULTS = {
