@@ -27,7 +27,7 @@ DEFAULT_CONFIG = {
 # - columns: List of column definitions
 #
 # Optional Parameters:
-# - min_rows: Minimum rows (default: 0 for no minimum)
+# - min_rows: Minimum rows (default: 1 for 1 row of data minimum)
 # - upload_reason: Custom upload reason
 # - spec_version: Version number
 # - file_id: File identifier
