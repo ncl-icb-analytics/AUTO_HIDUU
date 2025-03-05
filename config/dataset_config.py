@@ -1,6 +1,6 @@
-"""
-Dataset configurations for file uploads.
-"""
+# 
+# Dataset configurations for file uploads.
+# 
 
 from .schema_types import (
     Dataset, Column,
@@ -59,6 +59,7 @@ DEFAULT_CONFIG = {
 # ========================================
 
 #aff_hash0: Fixed filename dataset
+
 aff_Hash0 = Dataset(
     name="aff_hash0",
     filename_pattern="Aff_Hash0.csv",
@@ -177,6 +178,143 @@ aff_Hash4 = Dataset(
         Column("lsoa21cd", VarcharType(200))
           ]
 )
+
+ph_d_organization_organization_class_reltn = Dataset(
+    name='PH_D_ORGANIZATION_ORGANIZATION_CLASS_RELTN',
+    filename_pattern='PH_D_ORGANIZATION_ORGANIZATION_CLASS_RELTN.csv',
+    min_rows=1,
+    target_hei_dataset='PH_D_ORGANIZATION_ORGANIZATION_CLASS_RELTN',
+    upload_reason='Uploaded file on',
+    tenant="nlhcr-2",
+    columns=[
+        Column('org_id', VarcharType(200)),
+        Column('org_class_id', VarcharType(200)),
+        Column('version', VarcharType(200)),
+        Column('ministry_org_id', VarcharType(200)),
+        Column('ministry_org_class_id', VarcharType(200)),
+        Column('part_key', VarcharType(200))
+          ]
+)
+
+ph_d_organization_organization_class_reltn = Dataset(
+    name='PH_D_ORGANIZATION_PERSONNEL_RELTN',
+    filename_pattern='PH_D_ORGANIZATION_PERSONNEL_RELTN.csv',
+    target_hei_dataset='PH_D_ORGANIZATION_PERSONNEL_RELTN',
+    upload_reason='Uploaded file on',
+    tenant="nlhcr-2",
+    columns=[
+        Column('org_id', VarcharType(200)),
+        Column('prsnl_id', VarcharType(200)),
+        Column('reltn_type', VarcharType(200)),
+        Column('version', VarcharType(200)),
+        Column('ministry_org_id', VarcharType(200)),
+        Column('ministry_prsnl_id', VarcharType(200)),
+        Column('part_key', VarcharType(200)),
+        Column('reltn_type_key', VarcharType(200))
+          ]
+)
+
+ph_d_organization_alias = Dataset(
+    name='PH_D_ORGANIZATION_ALIAS',
+    filename_pattern='PH_D_ORGANIZATION_ALIAS.csv',
+    target_hei_dataset='PH_D_ORGANIZATION_ALIAS',
+    upload_reason='Uploaded file on',
+    tenant="nlhcr-2",
+    columns=[
+        Column('org_id', VarcharType(200)),
+        Column('org_alias_id', VarcharType(200)),
+        Column('org_alias_type', VarcharType(200)),
+        Column('org_alias_source_type', VarcharType(200)),
+        Column('version', VarcharType(200)),
+        Column('ministry_org_id', VarcharType(200)),
+        Column('part_key', VarcharType(200)),
+        Column('org_alias_assigning_authority', VarcharType(200)),
+        Column('org_alias_type_key', VarcharType(200))
+          ]
+)
+
+ph_d_organization_class = Dataset(
+    name='PH_D_ORGANIZATION_CLASS',
+    filename_pattern='PH_D_ORGANIZATION_CLASS.csv',
+    target_hei_dataset='PH_D_ORGANIZATION_CLASS',
+    upload_reason='Uploaded file on',
+    tenant="nlhcr-2",
+    columns=[
+        Column('org_class_id', VarcharType(200)),
+        Column('org_class_name', VarcharType(200)),
+        Column('org_class_seq', VarcharType(200)),
+        Column('version', VarcharType(200)),
+        Column('ministry_org_class_id', VarcharType(200)),
+        Column('part_key', VarcharType(200))
+          ]
+)
+
+ph_d_organization = Dataset(
+    name='PH_D_ORGANIZATION',
+    filename_pattern='PH_D_ORGANIZATION.csv',
+    target_hei_dataset='PH_D_ORGANIZATION',
+    upload_reason='Uploaded file on',
+    tenant="nlhcr-2",
+    columns=[
+        Column('org_id', VarcharType(200)),
+        Column('org_name', VarcharType(200)),
+        Column('version', VarcharType(200)),
+        Column('ministry_org_id', VarcharType(200)),
+        Column('part_key', VarcharType(200))
+          ]
+)
+
+ph_d_personnel_alias = Dataset(
+    name='PH_D_PERSONNEL_ALIAS',
+    filename_pattern='PH_D_PERSONNEL_ALIAS.csv',
+    target_hei_dataset='PH_D_PERSONNEL_ALIAS',
+    upload_reason='Uploaded file on',
+    tenant="nlhcr-2",
+    columns=[
+        Column('prsnl_id', VarcharType(200)),
+        Column('prsnl_alias_id', VarcharType(200)),
+        Column('prsnl_alias_type', VarcharType(200)),
+        Column('prsnl_alias_source_type', VarcharType(200)),
+        Column('version', VarcharType(200)),
+        Column('ministry_prsnl_id', VarcharType(200)),
+        Column('part_key', VarcharType(200)),
+        Column('prsnl_alias_assigning_authority', VarcharType(200))
+          ]
+)
+
+ph_d_personnel = Dataset(
+    name='PH_D_PERSONNEL',
+    filename_pattern='PH_D_PERSONNEL.csv',
+    target_hei_dataset='PH_D_PERSONNEL',
+    upload_reason='Uploaded file on',
+    tenant="nlhcr-2",
+    columns=[
+        Column('prsnl_id', VarcharType(200)),
+        Column('prsnl_name', VarcharType(200)),
+        Column('given_name', VarcharType(200)),
+        Column('family_name', VarcharType(200)),
+        Column('active_ind', VarcharType(200)),
+        Column('version', VarcharType(200)),
+        Column('ministry_prsnl_id', VarcharType(200)),
+        Column('part_key', VarcharType(200))
+          ]
+)
+
+ukhsa_covid_file = Dataset(
+    name='UKHSA_COVID',
+    filename_pattern='UKHSA_COVID.csv', 
+    target_hei_dataset='UKHSA_COVID',  
+    upload_reason='Uploaded file on', 
+    spec_version='1', 
+    file_id='SINGLE_FILE',  
+    columns=[
+        Column('coding_scheme', VarcharType(200)),
+        Column('library', VarcharType(200)),
+        Column('cluster_id', VarcharType(200)),
+        Column('cluster_description', VarcharType(200)),
+        Column('snomed_code', VarcharType(200)),
+        Column('snomed_description', VarcharType(400))
+    ])
 
 dvptl_moor_openpath = Dataset(
     name='dvPTL_MOOR_OPENPATH',
@@ -840,7 +978,7 @@ dvptl_uclh_openpath = Dataset(
         Column('DECISION_TO_TREAT_DATE', VarcharType(200)),
         Column('TCI_Date_Provided', VarcharType(200)),
         Column('Preliminary_Screening_And_Risk_Assessment_Date', VarcharType(200)),
-        Column('Action_Following_Preliminary_Screening_And_Risk_Assessment', VarcharType(200)),
+        Column('Action_Following_Preliminary_Screening_And_Risk_Assessment', VarcharType(200))
     ])
 
 dvptl_uclh_cstart = Dataset(
@@ -866,7 +1004,7 @@ dvptl_uclh_cstart = Dataset(
         Column('PERSON_BIRTH_DATE', VarcharType(200)),
         Column('PERSON_STATED_GENDER_CODE', VarcharType(200)),
         Column('ETHNIC_CATEGORY', VarcharType(200)),
-        Column('REFERRAL_TO_TREATMENT_PERIOD_STATUS', VarcharType(200)),
+        Column('REFERRAL_TO_TREATMENT_PERIOD_STATUS', VarcharType(200))
     ])
 
 dvptl_uclh_cstop = Dataset(
@@ -913,7 +1051,7 @@ dvptl_uclh_cstop = Dataset(
         Column('FIRST_ACTIVITY_DATE', VarcharType(200)),
         Column('FIRST_ACTIVITY_TYPE', VarcharType(200)),
         Column('DECISION_TO_TREAT_DATE', VarcharType(200)),
-        Column('TCI_Date_Provided', VarcharType(200)),
+        Column('TCI_Date_Provided', VarcharType(200))
     ])
 
 dvptl_uclh_diagnostic = Dataset(
@@ -945,7 +1083,7 @@ dvptl_uclh_diagnostic = Dataset(
         Column('Planned_Diagnostic_Due_Date', VarcharType(200)),
         Column('Proposed_Procedure_OPCS_Code', VarcharType(200)),
         Column('PRIORITY_TYPE_CODE', VarcharType(200)),
-        Column('Inclusion_On_Cancer_PTL', VarcharType(200)),
+        Column('Inclusion_On_Cancer_PTL', VarcharType(200))
     ])
 
 dvptl_whit_openpath = Dataset(
@@ -994,7 +1132,7 @@ dvptl_whit_openpath = Dataset(
         Column('DECISION_TO_TREAT_DATE', VarcharType(200)),
         Column('TCI_Date_Provided', VarcharType(200)),
         Column('Preliminary_Screening_And_Risk_Assessment_Date', VarcharType(200)),
-        Column('Action_Following_Preliminary_Screening_And_Risk_Assessment', VarcharType(200)),
+        Column('Action_Following_Preliminary_Screening_And_Risk_Assessment', VarcharType(200))
     ])
 
 dvptl_whit_cstart = Dataset(
@@ -1020,7 +1158,7 @@ dvptl_whit_cstart = Dataset(
         Column('PERSON_BIRTH_DATE', VarcharType(200)),
         Column('PERSON_STATED_GENDER_CODE', VarcharType(200)),
         Column('ETHNIC_CATEGORY', VarcharType(200)),
-        Column('REFERRAL_TO_TREATMENT_PERIOD_STATUS', VarcharType(200)),
+        Column('REFERRAL_TO_TREATMENT_PERIOD_STATUS', VarcharType(200))
     ])
 
 dvptl_whit_cstop = Dataset(
@@ -1067,7 +1205,7 @@ dvptl_whit_cstop = Dataset(
         Column('FIRST_ACTIVITY_DATE', VarcharType(200)),
         Column('FIRST_ACTIVITY_TYPE', VarcharType(200)),
         Column('DECISION_TO_TREAT_DATE', VarcharType(200)),
-        Column('TCI_Date_Provided', VarcharType(200)),
+        Column('TCI_Date_Provided', VarcharType(200))
     ])
 
 dvptl_whit_diagnostic = Dataset(
@@ -1099,7 +1237,7 @@ dvptl_whit_diagnostic = Dataset(
         Column('Planned_Diagnostic_Due_Date', VarcharType(200)),
         Column('Proposed_Procedure_OPCS_Code', VarcharType(200)),
         Column('PRIORITY_TYPE_CODE', VarcharType(200)),
-        Column('Inclusion_On_Cancer_PTL', VarcharType(200)),
+        Column('Inclusion_On_Cancer_PTL', VarcharType(200))
     ])
 
 barnet_asc_file = Dataset(
@@ -1283,7 +1421,7 @@ haringey_asc_file = Dataset(
         Column('Support from Carer', VarcharType(200)),
         Column('Support Provided to Carer', VarcharType(200)),
         Column('Ld Accommodation Type', VarcharType(200)),
-        Column('Ld Employment Status', VarcharType(200)),
+        Column('Ld Employment Status', VarcharType(200))
     ])
 
 islington_asc_file = Dataset(
