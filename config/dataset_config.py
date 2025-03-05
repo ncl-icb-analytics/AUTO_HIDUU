@@ -27,7 +27,7 @@ DEFAULT_CONFIG = {
 # - columns: List of column definitions
 #
 # Optional Parameters:
-# - min_rows: Minimum rows (default: 0 for no minimum)
+# - min_rows: Minimum rows (default: 1 for 1 row of data minimum)
 # - upload_reason: Custom upload reason
 # - spec_version: Version number
 # - file_id: File identifier
@@ -1467,6 +1467,169 @@ islington_asc_file = Dataset(
         Column('ld_employment_status', VarcharType(200))
     ]
 )
+ph_d_organization_organization_class_reltn = Dataset(
+    name='PH_D_ORGANIZATION_ORGANIZATION_CLASS_RELTN',
+    filename_pattern='PH_D_ORGANIZATION_ORGANIZATION_CLASS_RELTN.csv',
+    target_hei_dataset='PH_D_ORGANIZATION_ORGANIZATION_CLASS_RELTN',
+    upload_reason='Uploaded file on',
+    tenant="nlhcr-2",
+    spec_version='1',
+    file_id='SINGLE_FILE',
+    columns=[
+        Column('org_id', VarcharType(200)),
+        Column('org_class_id', VarcharType(200)),
+        Column('version', VarcharType(200)),
+        Column('ministry_org_id', VarcharType(200)),
+        Column('ministry_org_class_id', VarcharType(200)),
+        Column('part_key', VarcharType(200)),
+    ]
+)
+
+ph_d_organization_personnel_reltn = Dataset(
+    name='PH_D_ORGANIZATION_PERSONNEL_RELTN',
+    filename_pattern='PH_D_ORGANIZATION_PERSONNEL_RELTN.csv',
+    target_hei_dataset='PH_D_ORGANIZATION_PERSONNEL_RELTN',
+    upload_reason='Uploaded file on',
+    tenant="nlhcr-2",
+    spec_version='1',
+    file_id='SINGLE_FILE',
+    columns=[
+        Column('org_id', VarcharType(200)),
+        Column('prsnl_id', VarcharType(200)),
+        Column('reltn_type', VarcharType(200)),
+        Column('version', VarcharType(200)),
+        Column('ministry_org_id', VarcharType(200)),
+        Column('ministry_prsnl_id', VarcharType(200)),
+        Column('part_key', VarcharType(200)),
+        Column('reltn_type_key', VarcharType(200)),
+    ]
+)
+
+ph_d_organization_alias = Dataset(
+    name='PH_D_ORGANIZATION_ALIAS',
+    filename_pattern='PH_D_ORGANIZATION_ALIAS.csv',
+    target_hei_dataset='PH_D_ORGANIZATION_ALIAS',
+    upload_reason='Uploaded file on',
+    tenant="nlhcr-2",
+    spec_version='1',
+    file_id='SINGLE_FILE',
+    columns=[
+        Column('org_id', VarcharType(200)),
+        Column('org_alias_id', VarcharType(200)),
+        Column('org_alias_type', VarcharType(200)),
+        Column('org_alias_source_type', VarcharType(200)),
+        Column('version', VarcharType(200)),
+        Column('ministry_org_id', VarcharType(200)),
+        Column('part_key', VarcharType(200)),
+        Column('org_alias_assigning_authority', VarcharType(200)),
+        Column('org_alias_type_key', VarcharType(200)),
+    ]
+)
+
+ph_d_organization_class = Dataset(
+    name='PH_D_ORGANIZATION_CLASS',
+    filename_pattern='PH_D_ORGANIZATION_CLASS.csv',
+    target_hei_dataset='PH_D_ORGANIZATION_CLASS',
+    upload_reason='Uploaded file on',
+    tenant="nlhcr-2",
+    spec_version='1',
+    file_id='SINGLE_FILE',
+    columns=[
+        Column('org_class_id', VarcharType(200)),
+        Column('org_class_name', VarcharType(200)),
+        Column('org_class_seq', VarcharType(200)),
+        Column('version', VarcharType(200)),
+        Column('ministry_org_class_id', VarcharType(200)),
+        Column('part_key', VarcharType(200)),
+    ]
+)
+
+ph_d_organization = Dataset(
+    name='PH_D_ORGANIZATION',
+    filename_pattern='PH_D_ORGANIZATION.csv',
+    target_hei_dataset='PH_D_ORGANIZATION',
+    upload_reason='Uploaded file on',
+    tenant="nlhcr-2",
+    spec_version='1',
+    file_id='SINGLE_FILE',
+    columns=[
+        Column('org_id', VarcharType(200)),
+        Column('org_name', VarcharType(200)),
+        Column('version', VarcharType(200)),
+        Column('ministry_org_id', VarcharType(200)),
+        Column('part_key', VarcharType(200)),
+    ]
+)
+
+ph_d_personnel_alias = Dataset(
+    name='PH_D_PERSONNEL_ALIAS',
+    filename_pattern='PH_D_PERSONNEL_ALIAS.csv',
+    target_hei_dataset='PH_D_PERSONNEL_ALIAS',
+    upload_reason='Uploaded file on',
+    tenant="nlhcr-2",
+    spec_version='1',
+    file_id='SINGLE_FILE',
+    columns=[
+        Column('prsnl_id', VarcharType(200)),
+        Column('prsnl_alias_id', VarcharType(200)),
+        Column('prsnl_alias_type', VarcharType(200)),
+        Column('prsnl_alias_source_type', VarcharType(200)),
+        Column('version', VarcharType(200)),
+        Column('ministry_prsnl_id', VarcharType(200)),
+        Column('part_key', VarcharType(200)),
+        Column('prsnl_alias_assigning_authority', VarcharType(200)),
+    ]
+)
+ph_d_personnel = Dataset(
+    name='PH_D_PERSONNEL',
+    filename_pattern='PH_D_PERSONNEL.csv',
+    target_hei_dataset='PH_D_PERSONNEL',
+    upload_reason='Uploaded file on',
+    tenant="nlhcr-2",
+    spec_version='1',
+    file_id='SINGLE_FILE',
+    columns=[
+        Column('prsnl_id', VarcharType(200)),
+        Column('prsnl_name', VarcharType(200)),
+        Column('given_name', VarcharType(200)),
+        Column('family_name', VarcharType(200)),
+        Column('active_ind', VarcharType(200)),
+        Column('version', VarcharType(200)),
+        Column('ministry_prsnl_id', VarcharType(200)),
+        Column('part_key', VarcharType(200)),
+    ]
+)
+
+uk_clinical_standard_combined_feb2025 = Dataset(     
+    name='UK_CLINICAL_STANDARD_COMBINED_FEB2025',     
+    filename_pattern='UK_CLINICAL_STANDARD_COMBINED_FEB2025.csv',     
+    target_hei_dataset='UK_CLINICAL_STANDARD_COMBINED_FEB2025',     
+    upload_reason='Uploaded file on',     
+    tenant="nlhcr",     
+    columns=[         
+        Column('concept_type', VarcharType(2000)),         
+        Column('concept_name', VarcharType(2000)),         
+        Column('aliases', VarcharType(2000)),         
+        Column('code_system', VarcharType(2000)),         
+        Column('code', VarcharType(2000))         
+        
+    ] 
+)
+ukhsa_covid_file = Dataset(
+    name='UKHSA_COVID',
+    filename_pattern='UKHSA_COVID.csv',
+    target_hei_dataset='UKHSA_COVID',  
+    upload_reason='Uploaded file on',
+    spec_version='1',
+    file_id='SINGLE_FILE',  
+    columns=[
+        Column('Coding_Scheme', VarcharType(200)),
+        Column('Library', VarcharType(200)),
+        Column('Cluster_id', VarcharType(200)),
+        Column('Cluster_Description', VarcharType(200)),
+        Column('Snomed_Code', VarcharType(200)),
+        Column('Snomed_Description', VarcharType(400))
+    ])
 
 # Automatically collect all Dataset instances
 dataset_files = {
