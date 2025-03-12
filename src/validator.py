@@ -12,31 +12,126 @@ import os
 import pandas as pd
 import numpy as np
 
+def _normalize_column_name(column):
+    """
+    Normalizes column names by:
+    1. Converting to lowercase
+    2. Treating spaces, underscores, and hyphens as equivalent
+    
+    Examples:
+        "Date_of_Birth"  -> "date of birth"
+        "Date of Birth"  -> "date of birth"
+        "Date-of-Birth"  -> "date of birth"
+        "DateOfBirth"    -> "dateofbirth" (unchanged)
+    """
+    return column.lower().replace('_', ' ').replace('-', ' ')
+
+def _try_read_file(file_path, expected_columns):
+    """
+    Attempts to read a file with different encodings and formats.
+    Verifies that the columns match what we expect before accepting the read.
+    """
+    # List of encodings to try
+    encodings = ['utf-8', 'utf-8-sig', 'iso-8859-1', 'cp1252', 'latin1']
+    
+    # List of delimiters to try, in priority order
+    delimiters = [
+        (',', 'comma'),    # Try comma first (most common)
+        ('|', 'pipe'),     # Then pipe
+        ('\t', 'tab'),     # Then tab
+        (';', 'semicolon') # Finally semicolon
+    ]
+    
+    # Convert expected columns to normalized form
+    expected_columns_norm = {_normalize_column_name(col) for col in expected_columns}
+    
+    best_attempt = None
+    best_encoding = None
+    best_delimiter = None
+    
+    for encoding in encodings:
+        for delimiter, name in delimiters:
+            try:
+                # Try to read the file
+                df = pd.read_csv(file_path, encoding=encoding, delimiter=delimiter)
+                
+                # Verify we can actually access the columns and data
+                if len(df.columns) > 1:
+                    try:
+                        # Try to access first row to verify we can read the data
+                        if len(df) > 0:
+                            _ = df.iloc[0]
+                        
+                        # Normalize and check columns
+                        file_columns_norm = {_normalize_column_name(col) for col in df.columns}
+                        
+                        # If columns match exactly, we've found our match
+                        if file_columns_norm == expected_columns_norm:
+                            print(f"Successfully read file using {encoding} encoding and {name} delimiter")
+                            print(f"Found {len(df.columns)} columns: {', '.join(df.columns)}")
+                            return df, None
+                            
+                        # Store this attempt if it's the best so far
+                        if not best_attempt or len(df.columns) > len(best_attempt.columns):
+                            best_attempt = df
+                            best_encoding = encoding
+                            best_delimiter = name
+                            
+                    except Exception as e:
+                        print(f"Warning: Could read file but not access data with {encoding} and {name}: {str(e)}")
+                        continue
+                        
+            except Exception as e:
+                continue
+    
+    # If we got here, no attempt matched exactly. Provide detailed mismatch info
+    if best_attempt is not None:
+        print(f"\nBest attempt was using {best_encoding} encoding and {best_delimiter} delimiter")
+        print(f"Found {len(best_attempt.columns)} columns: {', '.join(best_attempt.columns)}")
+        
+        found_columns_norm = {_normalize_column_name(col): col for col in best_attempt.columns}
+        expected_columns_norm = {_normalize_column_name(col): col for col in expected_columns}
+        
+        missing = set(expected_columns_norm.keys()) - set(found_columns_norm.keys())
+        unexpected = set(found_columns_norm.keys()) - set(expected_columns_norm.keys())
+        
+        error_msg = [
+            f"Could not find exact column match using any encoding or delimiter.",
+            f"\nFound {len(found_columns_norm)} columns vs {len(expected_columns)} expected.",
+            "\nColumns found in file:",
+            ", ".join(sorted(best_attempt.columns)),
+            "\nExpected columns:",
+            ", ".join(sorted(expected_columns))
+        ]
+        
+        if missing:
+            error_msg.append("\nMissing columns:")
+            error_msg.append(", ".join(sorted(expected_columns_norm[col] for col in missing)))
+            
+        if unexpected:
+            error_msg.append("\nUnexpected columns:")
+            error_msg.append(", ".join(sorted(found_columns_norm[col] for col in unexpected)))
+            
+        return None, "\n".join(error_msg)
+    
+    return None, f"Could not read file with any encoding (tried: {', '.join(encodings)}) or delimiter (tried: comma, pipe, tab, semicolon)"
+
 def validate_file(file_path, dataset_config):
     """
-    Validates if a CSV file matches our expected format.
-    Column order is not important - checks only that all required columns are present.
-    Files with extra columns will be rejected.
-    
-    Args:
-        file_path (str): Path to the CSV/TXT file to validate
-        dataset_config (dict): Configuration dictionary containing schema and validation rules
-        
-    Returns:
-        tuple: (is_valid, message, row_count) where:
-            - is_valid (bool): True if file passes all validations
-            - message (str): Success message or error description
-            - row_count (int): Number of rows in the file
+    Validates if a CSV/TXT file matches our expected format.
+    Column names are validated case-insensitively.
     """
     # Basic file checks
     if not os.path.exists(file_path):
         return False, f"File not found: {file_path}", 0
         
-    # Try to read the file
-    try:
-        df = pd.read_csv(file_path)
-    except Exception as e:
-        return False, f"Could not read file: {str(e)}", 0
+    # Get expected columns from schema
+    expected_columns = set(dataset_config['schema'].keys())
+    
+    # Try to read the file with different encodings
+    df, error = _try_read_file(file_path, expected_columns)
+    if error:
+        return False, error, 0
         
     row_count = len(df)
         
@@ -44,27 +139,37 @@ def validate_file(file_path, dataset_config):
     if row_count < dataset_config['min_rows']:
         return False, f"File needs at least {dataset_config['min_rows']} rows, but has {row_count}", row_count
         
-    # Check columns match schema exactly (order doesn't matter)
+    # Create case-insensitive mappings
     schema = dataset_config['schema']
-    file_columns = set(df.columns)
-    required_columns = set(schema.keys())
+    file_columns_lower = {col.lower(): col for col in df.columns}
+    required_columns_lower = {col.lower(): col for col in schema.keys()}
     
     # Check for missing required columns
-    missing_cols = required_columns - file_columns
+    missing_cols = set(required_columns_lower.keys()) - set(file_columns_lower.keys())
     if missing_cols:
-        return False, f"Missing required columns: {', '.join(sorted(missing_cols))}", row_count
+        # Show original column names in error message
+        missing_original = [required_columns_lower[col] for col in missing_cols]
+        return False, f"Missing required columns: {', '.join(sorted(missing_original))}", row_count
         
     # Check for extra columns
-    extra_cols = file_columns - required_columns
+    extra_cols = set(file_columns_lower.keys()) - set(required_columns_lower.keys())
     if extra_cols:
-        return False, f"File contains unexpected columns: {', '.join(sorted(extra_cols))}", row_count
+        # Show original column names in error message
+        extra_original = [file_columns_lower[col] for col in extra_cols]
+        return False, f"File contains unexpected columns: {', '.join(sorted(extra_original))}", row_count
         
-    # Check each configured column's data
+    # Create mapping of file columns to schema columns
+    column_mapping = {
+        file_columns_lower[col.lower()]: col 
+        for col in schema.keys()
+    }
+    
+    # Check each configured column's data using the mapping
     errors = []
-    for col_name, rules in schema.items():
-        col_errors = _check_column(df[col_name], rules, col_name)
+    for file_col, schema_col in column_mapping.items():
+        col_errors = _check_column(df[file_col], schema[schema_col], schema_col)
         if col_errors:
-            errors.extend(f"Column '{col_name}': {error}" for error in col_errors)
+            errors.extend(f"Column '{schema_col}': {error}" for error in col_errors)
             
     if errors:
         return False, "\n".join(errors), row_count

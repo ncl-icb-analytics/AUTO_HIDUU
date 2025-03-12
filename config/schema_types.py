@@ -137,7 +137,7 @@ class Dataset:
     filename_pattern: str
     target_hei_dataset: str
     columns: List[Column]
-    min_rows: int = 0 # default 0
+    min_rows: int = 1
     tenant: str = "nlhcr"  # Default to nlhcr, can be "nlhcr" or "nlhcr-2"
     upload_reason: Optional[str] = None
     spec_version: Optional[str] = None
