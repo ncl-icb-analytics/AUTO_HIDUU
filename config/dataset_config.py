@@ -1316,6 +1316,21 @@ islington_asc_file = Dataset(
         Column('Ld Accommodation Type', VarcharType(200)),
         Column('Ld Employment Status', VarcharType(200)),
     ])
+ukhsa_covid_file = Dataset(
+    name='UKHSA_COVID',
+    filename_pattern='UKHSA_COVID.csv',
+    target_hei_dataset='UKHSA_COVID',  
+    upload_reason='Uploaded file on',
+    spec_version='1',
+    file_id='SINGLE_FILE',  
+    columns=[
+        Column('Coding_Scheme', VarcharType(200)),
+        Column('Library', VarcharType(200)),
+        Column('Cluster_id', VarcharType(200)),
+        Column('Cluster_Description', VarcharType(200)),
+        Column('Snomed_Code', VarcharType(200)),
+        Column('Snomed_Description', VarcharType(400))
+    ])
 
 # Automatically collect all Dataset instances
 dataset_files = {
