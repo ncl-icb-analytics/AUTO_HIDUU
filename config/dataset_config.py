@@ -2,6 +2,10 @@
 # Dataset configurations for file uploads.
 # 
 
+# 
+# Dataset configurations for file uploads.
+# 
+
 from .schema_types import (
     Dataset, Column,
     VarcharType, CharType, DateType, TimestampType,
@@ -59,6 +63,50 @@ DEFAULT_CONFIG = {
 # ========================================
 
 #aff_hash0: Fixed filename dataset
+
+vaccine_dataset = Dataset(     
+    name='Immunisations_Schedule_Test',     
+    filename_pattern='Immunisations_Schedule_Test.csv',     
+    target_hei_dataset='Immunisations_Schedule_Test',     
+    upload_reason='Uploaded file on',    
+        columns=[         
+        Column('vaccine_id', VarcharType(200)),         
+        Column('vaccine_name', VarcharType(200)),         
+        Column('dose_number', VarcharType(200)),         
+        Column('diseases_protected_against', VarcharType(200)),         
+        Column('trade_name', VarcharType(200)),         
+        Column('administration_route', VarcharType(200)),         
+        Column('schedule_age', VarcharType(200)),         
+        Column('minimum_age_days', VarcharType(200)),         
+        Column('maximum_age_days', VarcharType(200)),         
+        Column('minimum_interval_days', VarcharType(200)),         
+        Column('next_dose_vaccine_id', VarcharType(200)),         
+        Column('eligible_age_from_days', VarcharType(200)),         
+        Column('eligible_age_to_days', VarcharType(200)),         
+        Column('administered_cluster_id', VarcharType(200)),         
+        Column('drug_cluster_id', VarcharType(200)),         
+        Column('declined_cluster_id', VarcharType(200)),         
+        Column('contraindicated_cluster_id', VarcharType(200)),         
+        Column('key_reporting_age', VarcharType(200))  
+    ] 
+)
+
+lsoa21_neighbourhood_lookup = Dataset(
+    name='LSOA21NeighbourhoodLookup3Barnet',
+    filename_pattern='LSOA21NeighbourhoodLookup3Barnet.csv',
+    target_hei_dataset='LSOA21_NEIGHBOURHOOD',
+    upload_reason='Uploaded file on',
+    columns=[
+        Column('lsoa21cd', VarcharType(201)),       
+        Column('lsoa21nm', VarcharType(202)),    
+        Column('wd22cd', VarcharType(203)),       
+        Column('wd22nm', VarcharType(204)),        
+        Column('lad22cd', VarcharType(205)),       
+        Column('lad22nm', VarcharType(206)),      
+        Column('int', VarcharType(207))           
+    ]
+)
+
 
 aff_Hash0 = Dataset(
     name="aff_hash0",
@@ -363,6 +411,8 @@ dvptl_moor_openpath = Dataset(
         Column('TCI_Date_Provided', VarcharType(200)),
         Column('Preliminary_Screening_And_Risk_Assessment_Date', VarcharType(200)),
         Column('Action_Following_Preliminary_Screening_And_Risk_Assessment', VarcharType(200)),
+        Column('Original_Referral_Request_Received_Date', VarcharType(200)),
+        Column('Organisation_Identifier_Referring_Organisation', VarcharType(200)),
     ])
 
 dvptl_moor_cstart = Dataset(
@@ -436,6 +486,8 @@ dvptl_moor_cstop = Dataset(
         Column('FIRST_ACTIVITY_TYPE', VarcharType(200)),
         Column('DECISION_TO_TREAT_DATE', VarcharType(200)),
         Column('TCI_Date_Provided', VarcharType(200)),
+        Column('Original_Referral_Request_Received_Date', VarcharType(200)),
+        Column('Organisation_Identifier_Referring_Organisation', VarcharType(200)),
     ])
 
 dvptl_moor_diagnostic = Dataset(
@@ -468,6 +520,7 @@ dvptl_moor_diagnostic = Dataset(
         Column('Proposed_Procedure_OPCS_Code', VarcharType(200)),
         Column('PRIORITY_TYPE_CODE', VarcharType(200)),
         Column('Inclusion_On_Cancer_PTL', VarcharType(200)),
+        Column('Diagnostic_TCI_Date', VarcharType(200)),
     ])
 
 dvptl_nmid_openpath = Dataset(
@@ -517,6 +570,8 @@ dvptl_nmid_openpath = Dataset(
         Column('TCI_Date_Provided', VarcharType(200)),
         Column('Preliminary_Screening_And_Risk_Assessment_Date', VarcharType(200)),
         Column('Action_Following_Preliminary_Screening_And_Risk_Assessment', VarcharType(200)),
+        Column('Original_Referral_Request_Received_Date', VarcharType(200)),
+        Column('Organisation_Identifier_Referring_Organisation', VarcharType(200)),
     ])
 
 dvptl_nmid_cstart = Dataset(
@@ -590,6 +645,8 @@ dvptl_nmid_cstop = Dataset(
         Column('FIRST_ACTIVITY_TYPE', VarcharType(200)),
         Column('DECISION_TO_TREAT_DATE', VarcharType(200)),
         Column('TCI_Date_Provided', VarcharType(200)),
+        Column('Original_Referral_Request_Received_Date', VarcharType(200)),
+        Column('Organisation_Identifier_Referring_Organisation', VarcharType(200)),
     ])
 
 dvptl_nmid_diagnostic = Dataset(
@@ -622,6 +679,7 @@ dvptl_nmid_diagnostic = Dataset(
         Column('Proposed_Procedure_OPCS_Code', VarcharType(200)),
         Column('PRIORITY_TYPE_CODE', VarcharType(200)),
         Column('Inclusion_On_Cancer_PTL', VarcharType(200)),
+        Column('Diagnostic_TCI_Date', VarcharType(200)),
     ])
 
 dvptl_ral_openpath = Dataset(
@@ -671,6 +729,8 @@ dvptl_ral_openpath = Dataset(
         Column('TCI_Date_Provided', VarcharType(200)),
         Column('Preliminary_Screening_And_Risk_Assessment_Date', VarcharType(200)),
         Column('Action_Following_Preliminary_Screening_And_Risk_Assessment', VarcharType(200)),
+        Column('Original_Referral_Request_Received_Date', VarcharType(200)),
+        Column('Organisation_Identifier_Referring_Organisation', VarcharType(200)),
     ])
 
 dvptl_ral_cstart = Dataset(
@@ -744,6 +804,8 @@ dvptl_ral_cstop = Dataset(
         Column('FIRST_ACTIVITY_TYPE', VarcharType(200)),
         Column('DECISION_TO_TREAT_DATE', VarcharType(200)),
         Column('TCI_Date_Provided', VarcharType(200)),
+        Column('Original_Referral_Request_Received_Date', VarcharType(200)),
+        Column('Organisation_Identifier_Referring_Organisation', VarcharType(200)),
     ])
 
 dvptl_ral_diagnostic = Dataset(
@@ -776,6 +838,7 @@ dvptl_ral_diagnostic = Dataset(
         Column('Proposed_Procedure_OPCS_Code', VarcharType(200)),
         Column('PRIORITY_TYPE_CODE', VarcharType(200)),
         Column('Inclusion_On_Cancer_PTL', VarcharType(200)),
+        Column('Diagnostic_TCI_Date', VarcharType(200)),
     ])
 
 dvptl_rnoh_openpath = Dataset(
@@ -825,6 +888,10 @@ dvptl_rnoh_openpath = Dataset(
         Column('TCI_Date_Provided', VarcharType(200)),
         Column('Preliminary_Screening_And_Risk_Assessment_Date', VarcharType(200)),
         Column('Action_Following_Preliminary_Screening_And_Risk_Assessment', VarcharType(200)),
+        Column('Original_Referral_Request_Received_Date', VarcharType(200)),
+        Column('Organisation_Identifier_Referring_Organisation', VarcharType(200)),
+        
+        
     ])
 
 dvptl_rnoh_cstart = Dataset(
@@ -898,6 +965,8 @@ dvptl_rnoh_cstop = Dataset(
         Column('FIRST_ACTIVITY_TYPE', VarcharType(200)),
         Column('DECISION_TO_TREAT_DATE', VarcharType(200)),
         Column('TCI_Date_Provided', VarcharType(200)),
+        Column('Original_Referral_Request_Received_Date', VarcharType(200)),
+        Column('Organisation_Identifier_Referring_Organisation', VarcharType(200)),
     ])
 
 dvptl_rnoh_diagnostic = Dataset(
@@ -930,6 +999,7 @@ dvptl_rnoh_diagnostic = Dataset(
         Column('Proposed_Procedure_OPCS_Code', VarcharType(200)),
         Column('PRIORITY_TYPE_CODE', VarcharType(200)),
         Column('Inclusion_On_Cancer_PTL', VarcharType(200)),
+        Column('Diagnostic_TCI_Date', VarcharType(200)),
     ])
 
 dvptl_uclh_openpath = Dataset(
@@ -978,7 +1048,9 @@ dvptl_uclh_openpath = Dataset(
         Column('DECISION_TO_TREAT_DATE', VarcharType(200)),
         Column('TCI_Date_Provided', VarcharType(200)),
         Column('Preliminary_Screening_And_Risk_Assessment_Date', VarcharType(200)),
-        Column('Action_Following_Preliminary_Screening_And_Risk_Assessment', VarcharType(200))
+        Column('Action_Following_Preliminary_Screening_And_Risk_Assessment', VarcharType(200)),
+        Column('Original_Referral_Request_Received_Date', VarcharType(200)),
+        Column('Organisation_Identifier_Referring_Organisation', VarcharType(200)),
     ])
 
 dvptl_uclh_cstart = Dataset(
@@ -1051,7 +1123,9 @@ dvptl_uclh_cstop = Dataset(
         Column('FIRST_ACTIVITY_DATE', VarcharType(200)),
         Column('FIRST_ACTIVITY_TYPE', VarcharType(200)),
         Column('DECISION_TO_TREAT_DATE', VarcharType(200)),
-        Column('TCI_Date_Provided', VarcharType(200))
+        Column('TCI_Date_Provided', VarcharType(200)),
+        Column('Original_Referral_Request_Received_Date', VarcharType(200)),
+        Column('Organisation_Identifier_Referring_Organisation', VarcharType(200)),
     ])
 
 dvptl_uclh_diagnostic = Dataset(
@@ -1083,7 +1157,8 @@ dvptl_uclh_diagnostic = Dataset(
         Column('Planned_Diagnostic_Due_Date', VarcharType(200)),
         Column('Proposed_Procedure_OPCS_Code', VarcharType(200)),
         Column('PRIORITY_TYPE_CODE', VarcharType(200)),
-        Column('Inclusion_On_Cancer_PTL', VarcharType(200))
+        Column('Inclusion_On_Cancer_PTL', VarcharType(200)),
+        Column('Diagnostic_TCI_Date', VarcharType(200)),
     ])
 
 dvptl_whit_openpath = Dataset(
@@ -1132,7 +1207,9 @@ dvptl_whit_openpath = Dataset(
         Column('DECISION_TO_TREAT_DATE', VarcharType(200)),
         Column('TCI_Date_Provided', VarcharType(200)),
         Column('Preliminary_Screening_And_Risk_Assessment_Date', VarcharType(200)),
-        Column('Action_Following_Preliminary_Screening_And_Risk_Assessment', VarcharType(200))
+        Column('Action_Following_Preliminary_Screening_And_Risk_Assessment', VarcharType(200)),
+        Column('Original_Referral_Request_Received_Date', VarcharType(200)),
+        Column('Organisation_Identifier_Referring_Organisation', VarcharType(200)),
     ])
 
 dvptl_whit_cstart = Dataset(
@@ -1205,7 +1282,9 @@ dvptl_whit_cstop = Dataset(
         Column('FIRST_ACTIVITY_DATE', VarcharType(200)),
         Column('FIRST_ACTIVITY_TYPE', VarcharType(200)),
         Column('DECISION_TO_TREAT_DATE', VarcharType(200)),
-        Column('TCI_Date_Provided', VarcharType(200))
+        Column('TCI_Date_Provided', VarcharType(200)),
+        Column('Original_Referral_Request_Received_Date', VarcharType(200)),
+        Column('Organisation_Identifier_Referring_Organisation', VarcharType(200)),
     ])
 
 dvptl_whit_diagnostic = Dataset(
@@ -1237,7 +1316,8 @@ dvptl_whit_diagnostic = Dataset(
         Column('Planned_Diagnostic_Due_Date', VarcharType(200)),
         Column('Proposed_Procedure_OPCS_Code', VarcharType(200)),
         Column('PRIORITY_TYPE_CODE', VarcharType(200)),
-        Column('Inclusion_On_Cancer_PTL', VarcharType(200))
+        Column('Inclusion_On_Cancer_PTL', VarcharType(200)),
+        Column('Diagnostic_TCI_Date', VarcharType(200)),
     ])
 
 barnet_asc_file = Dataset(
@@ -1630,21 +1710,6 @@ ukhsa_covid_file = Dataset(
         Column('Snomed_Code', VarcharType(200)),
         Column('Snomed_Description', VarcharType(400))
     ])
-ukhsa_covid_file = Dataset(
-    name='UKHSA_COVID',
-    filename_pattern='UKHSA_COVID.csv',
-    target_hei_dataset='UKHSA_COVID',  
-    upload_reason='Uploaded file on',
-    spec_version='1',
-    file_id='SINGLE_FILE',  
-    columns=[
-        Column('Coding_Scheme', VarcharType(200)),
-        Column('Library', VarcharType(200)),
-        Column('Cluster_id', VarcharType(200)),
-        Column('Cluster_Description', VarcharType(200)),
-        Column('Snomed_Code', VarcharType(200)),
-        Column('Snomed_Description', VarcharType(400))
-    ])
 
 # Automatically collect all Dataset instances
 dataset_files = {
@@ -1652,4 +1717,3 @@ dataset_files = {
     for name, obj in globals().items()
     if isinstance(obj, Dataset)
 } 
-#ministry_organization_id	ref_record_type	source_type	source_id	source_version	source_description	ref_record_type_key	source_type_key	population_id	data_point_seq	hash_value	hash_5	dc_extracted	lsoa21cd

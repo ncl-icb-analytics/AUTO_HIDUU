@@ -1,0 +1,3 @@
+"""
+AUTO_HIDUU package
+"""

@@ -9,7 +9,9 @@ It processes CSV/TXT files from an input directory and:
 - Provides upload summary
 """
 
+import sys
 import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import re
 import shutil
 from datetime import datetime
@@ -18,6 +20,7 @@ import subprocess
 from dataclasses import dataclass
 from src.validator import validate_file
 from config.dataset_config import DEFAULT_CONFIG
+import fnmatch
 
 @dataclass
 class UploadContext:
@@ -84,18 +87,30 @@ def process_and_upload_files(input_path, hiduu_dir, auth_credentials, dataset_fi
 
 def _find_matching_files(all_files, dataset_files):
     """Match files against dataset patterns and return matches"""
+    import fnmatch
+    import re
     matching_files = []
+    def clean_pattern(pattern):
+        # Remove all backslashes
+        pattern = pattern.replace('\\', '')
+        # Replace 2 or more consecutive dots with same number of question marks
+        pattern = re.sub(r'\.{2,}', lambda m: '?' * len(m.group(0)), pattern)
+        return pattern
     for file in all_files:
         for dataset_name, dataset_config in dataset_files.items():
-            if re.match(dataset_config['filename_pattern'], file):
+            raw_pattern = dataset_config['filename_pattern']
+            pattern = clean_pattern(raw_pattern)
+            print(f"Comparing file: '{file}' | raw pattern: '{raw_pattern}' | cleaned pattern: '{pattern}' | dataset: '{dataset_name}'")
+            if fnmatch.fnmatch(file, pattern):
+                print(f"MATCHED: {file} -> {pattern} (dataset: {dataset_name})")
                 matching_files.append((file, dataset_name))
                 break
-    
     if matching_files:
         print(f"\nFound {len(matching_files)} files matching dataset patterns:")
         for file, dataset in matching_files:
             print(f"  - {file} -> {dataset}")
-            
+    else:
+        print("No files match any configured dataset patterns")
     return matching_files
 
 def _create_processed_directory(input_path):

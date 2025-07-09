@@ -3,7 +3,12 @@ This is the main entry point for the file upload application.
 """
 
 import os
+import sys
 from dotenv import load_dotenv
+
+# Add the project root directory to Python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from config.dataset_config import dataset_files
 from src.uploader import process_and_upload_files
 
